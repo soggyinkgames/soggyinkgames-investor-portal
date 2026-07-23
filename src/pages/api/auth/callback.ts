@@ -39,6 +39,14 @@ export const GET: APIRoute = async ({ url, cookies, request, redirect }) => {
     await logEvent(supabase, investor.id, 'login', 'magic-link');
   }
 
+  // After exchangeCodeForSession succeeds, and after fetching the investor row:
+  if (investor && !investor.auth_user_id) {
+    await supabase
+      .from('investors')
+      .update({ auth_user_id: data.session.user.id })
+      .eq('id', investor.id);
+  }
+
   // Redirect to intended destination (or dashboard)
   const safeNext = next.startsWith('/investors/') ? next : '/investors/dashboard';
   return redirect(safeNext);
