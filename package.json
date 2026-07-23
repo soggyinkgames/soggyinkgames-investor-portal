@@ -1,0 +1,26 @@
+{
+  "name": "soggyink-investor-portal",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/netlify": "^8.1.2",
+    "@astrojs/node": "^11.0.2",
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.7",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.3",
+    "pdf-lib": "^1.17.1",
+    "resend": "^6.17.2",
+    "tailwindcss": "^4.3.3"
+  }
+}

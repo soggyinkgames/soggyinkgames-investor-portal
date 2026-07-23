@@ -1,0 +1,125 @@
+---
+/**
+ * /investors/legal — Invested only
+ * 
+ * Legal documents, cap table, and financial detail.
+ * Middleware enforces role = 'invested' before reaching this page.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const investor = Astro.locals.investor!;
+const supabase = Astro.locals.supabase;
+
+// Fetch legal documents
+const { data: legalDocs } = await supabase
+  .from('documents')
+  .select('*')
+  .eq('category', 'legal')
+  .eq('access_level', 'invested')
+  .order('created_at', { ascending: false });
+---
+
+<BaseLayout
+  title="Legal Documents — Soggy Ink Games Investor Portal"
+  user={investor}
+  showNav={true}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-10">
+      <a href="/investors/dashboard" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-6 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to dashboard
+      </a>
+      <div class="badge-invested mb-4">Invested investor</div>
+      <h1 class="font-display text-3xl text-ink-primary mb-3">Legal Documents</h1>
+      <p class="text-ink-secondary leading-relaxed max-w-2xl">
+        Agreements, cap table, financial detail, and other legal materials for invested investors.
+      </p>
+    </div>
+
+    <div class="portal-divider mb-10"></div>
+    <div class="mb-8 p-4 rounded-xl border border-brand-pink/20 bg-brand-pink/5 flex items-start gap-3">
+      <svg class="w-5 h-5 text-brand-pink flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <div>
+        <p class="text-sm font-medium text-brand-pink">Strictly confidential</p>
+        <p class="text-xs text-brand-pink/70 mt-0.5 leading-relaxed">
+          These documents contain sensitive legal and financial information. All PDFs are watermarked with
+          your email ({investor.email}). Do not share, forward, or distribute under any circumstances.
+          If you have questions about any document, contact us directly.
+        </p>
+      </div>
+    </div>
+
+    {legalDocs && legalDocs.length > 0 ? (
+      <div class="space-y-4 mb-12">
+        {legalDocs.map(doc => (
+          <div class="portal-card">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-start gap-4 min-w-0">
+                <div class="w-12 h-12 rounded-lg bg-portal-bg border border-portal-border flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-brand-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="font-display text-sm text-ink-primary mb-1">{doc.title}</h3>
+                  {doc.description && (
+                    <p class="text-xs text-ink-secondary leading-relaxed mb-2">{doc.description}</p>
+                  )}
+                  <div class="flex items-center gap-2">
+                    <span class="badge-invested text-[10px]">Invested only</span>
+                    <span class="text-xs text-ink-muted">PDF · Watermarked</span>
+                    {doc.created_at && (
+                      <span class="text-xs text-ink-muted">
+                        · Added {new Date(doc.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <a
+                href={`/investors/api/document/${doc.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-primary text-xs flex-shrink-0"
+              >
+                View PDF
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="portal-card text-center py-16 mb-12">
+        <div class="w-14 h-14 rounded-full bg-portal-bg border border-portal-border flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h3 class="font-display text-sm text-ink-primary mb-2">Documents being prepared</h3>
+        <p class="text-xs text-ink-muted max-w-xs mx-auto leading-relaxed">
+          Legal documents are being prepared and will be available here shortly.
+          Contact us if you need something urgently.
+        </p>
+      </div>
+    )}
+    <div class="portal-card bg-portal-bg">
+      <h3 class="font-display text-sm text-ink-primary mb-2">Questions about these documents?</h3>
+      <p class="text-xs text-ink-secondary leading-relaxed mb-3">
+        If you have questions about any of the legal documents, cap table, or financial information,
+        please reach out directly. We're happy to walk through anything in detail.
+      </p>
+      <a href="mailto:soggyinkgames@gmail.com" class="btn-ghost text-xs">
+        Contact us →
+      </a>
+    </div>
+    <div class="flex items-center justify-between pt-8 portal-divider mt-8">
+      <a href="/investors/hypothesis-results" class="btn-ghost text-sm">← Hypothesis Results</a>
+      <a href="/investors/dashboard" class="btn-primary text-sm">Dashboard →</a>
+    </div>
+  </div>
+</BaseLayout>

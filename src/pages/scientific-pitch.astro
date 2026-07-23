@@ -1,0 +1,149 @@
+---
+/**
+ * /investors/scientific-pitch — Prospective+ gated
+ * 
+ * Research foundations and hypotheses.
+ * Research documents served via signed URLs with watermarking.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const investor = Astro.locals.investor!;
+const supabase = Astro.locals.supabase;
+
+// Fetch research documents
+const { data: researchDocs } = await supabase
+  .from('documents')
+  .select('*')
+  .eq('category', 'research')
+  .eq('access_level', 'prospective')
+  .order('created_at', { ascending: false });
+---
+
+<BaseLayout
+  title="Scientific Pitch — Soggy Ink Games Investor Portal"
+  user={investor}
+  showNav={true}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-10">
+      <a href="/investors/dashboard" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-6 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to dashboard
+      </a>
+      <div class="badge-prospective mb-4">Prospective investor</div>
+      <h1 class="font-display text-3xl text-ink-primary mb-3">Scientific Pitch</h1>
+      <p class="text-ink-secondary leading-relaxed max-w-2xl">
+        The research foundations and testable hypotheses that underpin our game design decisions.
+      </p>
+    </div>
+
+    <div class="portal-divider mb-10"></div>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">Research foundations</h2>
+      <div class="portal-card mb-6">
+        <p class="text-sm text-ink-secondary leading-relaxed mb-4">
+          [Replace with your research overview — what academic or empirical work informs your game design. This is the "why we believe this works" section that distinguishes your approach from intuition-only design.]
+        </p>
+        <p class="text-sm text-ink-secondary leading-relaxed">
+          [Reference specific research areas, frameworks, or studies that your design draws on. Keep this accessible — investors don't need to be scientists, but they should understand why the research matters to the product.]
+        </p>
+      </div>
+    </section>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">Hypotheses</h2>
+      <p class="text-sm text-ink-secondary mb-6 leading-relaxed">
+        We approach game design as a series of testable hypotheses. Here are the core claims we're testing:
+      </p>
+      <div class="space-y-4">
+        {[
+          {
+            id: 'H1',
+            hypothesis: '[Replace with Hypothesis 1 — a specific, testable claim about player behaviour, engagement, or outcome]',
+            rationale: '[Why you believe this is true, what evidence supports it]',
+            status: 'Testing',
+          },
+          {
+            id: 'H2',
+            hypothesis: '[Replace with Hypothesis 2]',
+            rationale: '[Rationale]',
+            status: 'Pending',
+          },
+          {
+            id: 'H3',
+            hypothesis: '[Replace with Hypothesis 3]',
+            rationale: '[Rationale]',
+            status: 'Pending',
+          },
+        ].map(h => (
+          <div class="portal-card">
+            <div class="flex items-start gap-4">
+              <div class="font-display text-xs text-brand-teal bg-brand-teal/10 border border-brand-teal/20 rounded px-2 py-1 flex-shrink-0 mt-0.5">
+                {h.id}
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-ink-primary mb-2 leading-relaxed">{h.hypothesis}</p>
+                <p class="text-xs text-ink-secondary leading-relaxed mb-3">{h.rationale}</p>
+                <div class="flex items-center gap-2">
+                  <span class={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium
+                    ${h.status === 'Testing' ? 'bg-brand-teal/10 text-brand-teal border border-brand-teal/20' :
+                      h.status === 'Validated' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                      'bg-portal-border/50 text-ink-muted border border-portal-border'}`}>
+                    {h.status}
+                  </span>
+                  {investor.role === 'invested' && (
+                    <a href="/investors/hypothesis-results" class="text-xs text-brand-purple hover:text-brand-purple/80 transition-colors">
+                      View results →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {investor.role !== 'invested' && (
+        <div class="mt-6 p-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 flex items-start gap-3">
+          <svg class="w-5 h-5 text-brand-purple flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <div>
+            <p class="text-sm font-medium text-ink-primary">Hypothesis results available to invested investors</p>
+            <p class="text-xs text-ink-secondary mt-0.5">
+              Test results, validation data, and detailed analysis are available after investment.
+            </p>
+          </div>
+        </div>
+      )}
+    </section>
+    {researchDocs && researchDocs.length > 0 && (
+      <section class="mb-12">
+        <h2 class="font-display text-lg text-ink-primary mb-5">Research documents</h2>
+        <div class="space-y-4">
+          {researchDocs.map(doc => (
+            <div class="portal-card flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <svg class="w-5 h-5 text-brand-teal flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <div class="min-w-0">
+                  <p class="text-sm text-ink-primary font-medium truncate">{doc.title}</p>
+                  <p class="text-xs text-ink-muted">PDF · Watermarked</p>
+                </div>
+              </div>
+              <a href={`/investors/api/document/${doc.id}`} target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs flex-shrink-0">
+                View
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+    <div class="flex items-center justify-between pt-6 portal-divider">
+      <a href="/investors/pitch-deck" class="btn-ghost text-sm">← Pitch Deck</a>
+      <a href="/investors/milestones" class="btn-primary text-sm">Milestones →</a>
+    </div>
+  </div>
+</BaseLayout>

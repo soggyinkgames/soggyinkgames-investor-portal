@@ -1,0 +1,155 @@
+---
+/**
+ * /investors/dashboard — Prospective+ gated home
+ * 
+ * Shows tiered navigation and a personalised welcome.
+ * Middleware ensures only approved investors reach this page.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createSupabaseClient } from '../lib/supabase';
+
+const investor = Astro.locals.investor!;
+const supabase = Astro.locals.supabase;
+
+// Fetch recent milestones
+const { data: milestones } = await supabase
+  .from('milestones')
+  .select('*')
+  .order('date', { ascending: false })
+  .limit(3);
+
+// Fetch recent events for this investor
+const { data: recentEvents } = await supabase
+  .from('events')
+  .select('*')
+  .eq('investor_id', investor.id)
+  .order('created_at', { ascending: false })
+  .limit(5);
+
+// Fetch available documents count
+const { count: docCount } = await supabase
+  .from('documents')
+  .select('*', { count: 'exact', head: true })
+  .eq('access_level', investor.role === 'invested' ? 'invested' : 'prospective');
+
+const isInvested = investor.role === 'invested';
+
+// Upgrade reason from middleware redirect
+const upgradeReason = Astro.url.searchParams.get('reason');
+const requestedPage = Astro.url.searchParams.get('page');
+
+const navItems = [
+  { href: '/investors/value-proposition', label: 'Value Proposition', description: 'Our core thesis and market opportunity', icon: '◆', tier: 'prospective' },
+  { href: '/investors/pitch-deck', label: 'Pitch Deck', description: 'Full deck in email and presentation formats', icon: '◈', tier: 'prospective' },
+  { href: '/investors/scientific-pitch', label: 'Scientific Pitch', description: 'Research foundations and hypotheses', icon: '◉', tier: 'prospective' },
+  { href: '/investors/milestones', label: 'Milestones', description: 'Company progress timeline', icon: '◎', tier: 'prospective' },
+  { href: '/investors/team', label: 'Team', description: 'Who we are and what we bring', icon: '◍', tier: 'prospective' },
+  { href: '/investors/hypothesis-results', label: 'Hypothesis Results', description: 'Test results and validation data', icon: '◑', tier: 'invested' },
+  { href: '/investors/legal', label: 'Legal Documents', description: 'Agreements, cap table, and financial detail', icon: '◐', tier: 'invested' },
+];
+---
+
+<BaseLayout
+  title="Dashboard — Soggy Ink Games Investor Portal"
+  user={investor}
+  showNav={true}
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    {upgradeReason === 'upgrade-required' && requestedPage && (
+      <div class="mb-6 p-4 rounded-xl border border-brand-purple/30 bg-brand-purple/5 flex items-start gap-3">
+        <svg class="w-5 h-5 text-brand-purple flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <div>
+          <p class="text-sm font-medium text-ink-primary">Invested investor access required</p>
+          <p class="text-xs text-ink-secondary mt-0.5">
+            That section is available to invested investors only. Contact us if you believe your access level should be updated.
+          </p>
+        </div>
+      </div>
+    )}
+    <div class="mb-10">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h1 class="font-display text-2xl text-ink-primary mb-1">
+            Welcome back{investor.name ? `, ${investor.name.split(' ')[0]}` : ''}
+          </h1>
+          <p class="text-sm text-ink-secondary">
+            You're viewing the investor portal as a{' '}
+            <span class={isInvested ? 'badge-invested' : 'badge-prospective'}>
+              {isInvested ? 'Invested investor' : 'Prospective investor'}
+            </span>
+          </p>
+        </div>
+        <div class="hidden sm:flex flex-col items-end text-right">
+          <span class="text-xs text-ink-muted">Signed in as</span>
+          <span class="text-sm text-ink-secondary">{investor.email}</span>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+      {[
+        { label: 'Documents available', value: String(docCount ?? 0) },
+        { label: 'Recent milestones', value: String(milestones?.length ?? 0) },
+        { label: 'Your sessions', value: String(recentEvents?.filter(e => e.event_type === 'login').length ?? 0) },
+        { label: 'Access level', value: isInvested ? 'Full' : 'Standard' },
+      ].map(stat => (
+        <div class="portal-card text-center py-4">
+          <div class="font-display text-xl text-brand-teal mb-1">{stat.value}</div>
+          <div class="text-xs text-ink-muted uppercase tracking-wider">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+    <div class="mb-10">
+      <h2 class="font-display text-xs text-ink-secondary tracking-widest uppercase mb-4">Portal sections</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {navItems.map(item => {
+          const locked = item.tier === 'invested' && !isInvested;
+          return (
+            <a
+              href={locked ? '#' : item.href}
+              class={`portal-card group flex items-start gap-4 no-underline transition-all duration-200
+                ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:border-brand-teal/40'}`}
+              aria-disabled={locked}
+            >
+              <div class={`text-2xl flex-shrink-0 mt-0.5 ${locked ? 'text-ink-muted' : 'text-brand-teal group-hover:scale-110 transition-transform duration-150'}`}>
+                {item.icon}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-display text-sm text-ink-primary leading-snug">{item.label}</span>
+                  {locked && <span class="badge-locked text-[10px]">Invested only</span>}
+                </div>
+                <p class="text-xs text-ink-muted leading-relaxed">{item.description}</p>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+    {milestones && milestones.length > 0 && (
+      <div class="mb-10">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display text-xs text-ink-secondary tracking-widest uppercase">Recent milestones</h2>
+          <a href="/investors/milestones" class="text-xs text-brand-teal hover:text-brand-teal/80 transition-colors">
+            View all →
+          </a>
+        </div>
+        <div class="space-y-3">
+          {milestones.map(m => (
+            <div class="portal-card flex items-start gap-4 py-4">
+              <div class="w-2 h-2 rounded-full bg-brand-teal flex-shrink-0 mt-1.5"></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-3 mb-1">
+                  <span class="font-medium text-sm text-ink-primary">{m.title}</span>
+                  <span class="text-xs text-ink-muted">{new Date(m.date).toLocaleDateString('en-AU', { year: 'numeric', month: 'short' })}</span>
+                </div>
+                <p class="text-xs text-ink-secondary leading-relaxed">{m.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>

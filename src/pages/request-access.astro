@@ -1,0 +1,148 @@
+---
+/**
+ * /investors/request-access — Public form
+ * 
+ * Writes an investors row with approved=false for manual review.
+ * Copy is narrative/qualitative only — no financial details.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const status = Astro.url.searchParams.get('status');
+const error = Astro.url.searchParams.get('error');
+const reason = Astro.url.searchParams.get('reason');
+---
+
+<BaseLayout
+  title="Request Investor Access — Soggy Ink Games"
+  description="Request access to the Soggy Ink Games investor portal."
+>
+  <div class="min-h-screen flex items-center justify-center px-4 py-16">
+    <div class="w-full max-w-lg animate-slide-up">
+      <a href="/investors/" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-8 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to investor overview
+      </a>
+      <div class="flex items-center gap-3 mb-8">
+        <img
+          src="https://res.cloudinary.com/soggy-ink-games/image/upload/v1651059402/soggyInkGamesSMALL_axleob.png"
+          alt="Soggy Ink Games"
+          class="h-10 w-10 object-contain"
+        />
+        <div class="flex flex-col leading-none gap-1">
+          <span class="font-display text-xs text-ink-secondary tracking-widest uppercase">Soggy Ink Games</span>
+          <span class="font-display text-xs text-brand-teal tracking-widest uppercase">Investor Portal</span>
+        </div>
+      </div>
+
+      {status === 'submitted' ? (
+        <div class="portal-card text-center py-10">
+          <div class="w-14 h-14 rounded-full bg-brand-teal/15 border border-brand-teal/30 flex items-center justify-center mx-auto mb-5">
+            <svg class="w-7 h-7 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 class="font-display text-xl text-ink-primary mb-3">Request received</h1>
+          <p class="text-sm text-ink-secondary leading-relaxed max-w-sm mx-auto mb-6">
+            Thank you for your interest in Soggy Ink Games. We review all requests personally
+            and will be in touch within a few days.
+          </p>
+          <a href="/investors/" class="btn-secondary text-sm">Back to overview</a>
+        </div>
+      ) : status === 'already-submitted' ? (
+        <div class="portal-card text-center py-8">
+          <h1 class="font-display text-xl text-ink-primary mb-3">Already submitted</h1>
+          <p class="text-sm text-ink-secondary mb-5">
+            We already have your request on file and it's under review. We'll be in touch soon.
+          </p>
+          <a href="/investors/login" class="btn-secondary text-sm">Try signing in</a>
+        </div>
+      ) : (
+        <div class="portal-card">
+          <h1 class="font-display text-xl text-ink-primary mb-1">Request access</h1>
+          <p class="text-sm text-ink-secondary mb-6 leading-relaxed">
+            Tell us a little about yourself. We review all requests personally — this isn't an automated sign-up.
+          </p>
+
+          {error && (
+            <div class="mb-5 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {error === 'invalid-input' && 'Please fill in all required fields with valid information.'}
+              {error === 'server-error' && 'Something went wrong. Please try again or email us directly.'}
+              {error !== 'invalid-input' && error !== 'server-error' && 'An error occurred. Please try again.'}
+            </div>
+          )}
+
+          {reason === 'not-found' && (
+            <div class="mb-5 p-3 rounded-lg bg-brand-teal/10 border border-brand-teal/30 text-brand-teal text-sm">
+              We don't have an account for that email yet. Fill in the form below to request access.
+            </div>
+          )}
+
+          <form method="POST" action="/investors/api/request-access" class="space-y-5">
+            <div>
+              <label for="name" class="block text-xs font-medium text-ink-secondary mb-1.5 uppercase tracking-wider">
+                Full name <span class="text-brand-pink">*</span>
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                autocomplete="name"
+                placeholder="Jane Smith"
+                class="portal-input"
+              />
+            </div>
+
+            <div>
+              <label for="email" class="block text-xs font-medium text-ink-secondary mb-1.5 uppercase tracking-wider">
+                Email address <span class="text-brand-pink">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                autocomplete="email"
+                placeholder="jane@example.com"
+                class="portal-input"
+              />
+            </div>
+
+            <div>
+              <label for="message" class="block text-xs font-medium text-ink-secondary mb-1.5 uppercase tracking-wider">
+                Why are you interested? <span class="text-ink-muted">(optional)</span>
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows="4"
+                placeholder="Tell us about your background and interest in Soggy Ink Games..."
+                class="portal-input resize-none"
+              ></textarea>
+            </div>
+
+            <div class="p-3 rounded-lg bg-portal-bg border border-portal-border">
+              <p class="text-xs text-ink-muted leading-relaxed">
+                By submitting this form, you acknowledge that access to the investor portal is granted
+                at our discretion and that all information within is confidential.
+              </p>
+            </div>
+
+            <button type="submit" class="btn-primary w-full">
+              Submit request
+            </button>
+          </form>
+
+          <div class="portal-divider mt-6 pt-5">
+            <p class="text-xs text-ink-muted text-center">
+              Already have access?{' '}
+              <a href="/investors/login" class="text-brand-teal hover:text-brand-teal/80">Sign in</a>
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>

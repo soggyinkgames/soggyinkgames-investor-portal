@@ -1,0 +1,115 @@
+---
+/**
+ * /investors/value-proposition — Prospective+ gated
+ * 
+ * Brand voice, design overview, and core value proposition.
+ * Content is placeholder — replace with actual copy before launch.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const investor = Astro.locals.investor!;
+---
+
+<BaseLayout
+  title="Value Proposition — Soggy Ink Games Investor Portal"
+  user={investor}
+  showNav={true}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-10">
+      <a href="/investors/dashboard" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-6 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to dashboard
+      </a>
+      <div class="badge-prospective mb-4">Prospective investor</div>
+      <h1 class="font-display text-3xl text-ink-primary mb-3">Value Proposition</h1>
+      <p class="text-ink-secondary leading-relaxed max-w-2xl">
+        Why Soggy Ink Games, why now, and what makes this worth backing.
+      </p>
+    </div>
+
+    <div class="portal-divider mb-10"></div>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">The core thesis</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        {[
+          {
+            heading: 'The market',
+            body: '[Replace with your market analysis — size, growth trajectory, underserved segments. Keep qualitative here; specific numbers belong in the pitch deck.]',
+          },
+          {
+            heading: 'The opportunity',
+            body: '[Replace with your specific opportunity — what gap exists, why now, why this team is positioned to capture it.]',
+          },
+          {
+            heading: 'The differentiation',
+            body: '[Replace with what makes Soggy Ink Games distinct — creative approach, research foundation, business model, audience relationship.]',
+          },
+        ].map(item => (
+          <div class="portal-card">
+            <h3 class="font-display text-sm text-brand-teal mb-3 uppercase tracking-wider">{item.heading}</h3>
+            <p class="text-sm text-ink-secondary leading-relaxed">{item.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">Brand voice & design philosophy</h2>
+      <div class="portal-card">
+        <p class="text-sm text-ink-secondary leading-relaxed mb-4">
+          [Replace with your brand voice description — how you communicate, what tone you strike, what you stand for aesthetically and editorially. This is the "who are we" section that gives investors a feel for the studio's personality and creative DNA.]
+        </p>
+        <p class="text-sm text-ink-secondary leading-relaxed">
+          [Include your design philosophy — what principles guide your game design decisions, how you think about player experience, what you refuse to compromise on.]
+        </p>
+      </div>
+    </section>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">Business model</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="portal-card">
+          <h3 class="font-display text-sm text-ink-primary mb-3">Revenue streams</h3>
+          <ul class="space-y-2 text-sm text-ink-secondary">
+            <li class="flex items-start gap-2">
+              <span class="text-brand-teal mt-0.5">→</span>
+              [Primary revenue stream — e.g. game sales, pre-orders]
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-brand-teal mt-0.5">→</span>
+              [Secondary revenue stream]
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-brand-teal mt-0.5">→</span>
+              [Future revenue opportunities]
+            </li>
+          </ul>
+        </div>
+        <div class="portal-card">
+          <h3 class="font-display text-sm text-ink-primary mb-3">Unit economics</h3>
+          <p class="text-sm text-ink-secondary leading-relaxed">
+            [Replace with your unit economics overview — cost to acquire a customer, lifetime value, margin structure. Specific numbers and projections are in the pitch deck.]
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">Competitive landscape</h2>
+      <div class="portal-card">
+        <p class="text-sm text-ink-secondary leading-relaxed mb-4">
+          [Replace with your competitive analysis — who else is in this space, how you're positioned relative to them, what moats you're building.]
+        </p>
+        <div class="mt-4 p-3 rounded-lg bg-portal-bg border border-portal-border">
+          <p class="text-xs text-ink-muted">
+            Detailed competitive analysis and financial projections are available in the pitch deck.
+          </p>
+        </div>
+      </div>
+    </section>
+    <div class="flex items-center justify-between pt-6 portal-divider">
+      <a href="/investors/dashboard" class="btn-ghost text-sm">← Dashboard</a>
+      <a href="/investors/pitch-deck" class="btn-primary text-sm">View pitch deck →</a>
+    </div>
+  </div>
+</BaseLayout>

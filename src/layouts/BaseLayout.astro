@@ -1,0 +1,154 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    role: 'prospective' | 'invested';
+  } | null;
+  showNav?: boolean;
+}
+
+const {
+  title = 'Investor Portal — Soggy Ink Games',
+  description = 'Investor relations portal for Soggy Ink Games.',
+  user = null,
+  showNav = false,
+} = Astro.props;
+
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+const currentPath = Astro.url.pathname;
+const isInvested = user?.role === 'invested';
+
+const navLinks = [
+  { href: '/investors/dashboard', label: 'Dashboard' },
+  { href: '/investors/value-proposition', label: 'Value Prop' },
+  { href: '/investors/pitch-deck', label: 'Pitch Deck' },
+  { href: '/investors/scientific-pitch', label: 'Science' },
+  { href: '/investors/milestones', label: 'Milestones' },
+  { href: '/investors/team', label: 'Team' },
+  ...(isInvested ? [
+    { href: '/investors/hypothesis-results', label: 'Results' },
+    { href: '/investors/legal', label: 'Legal' },
+  ] : []),
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/soggy-ink-games/image/upload/v1651059402/soggyInkGamesSMALL_axleob.png" />
+  </head>
+  <body style="background: var(--color-portal-bg); color: var(--color-ink-primary); min-height: 100vh; display: flex; flex-direction: column; font-family: var(--font-family-body); -webkit-font-smoothing: antialiased;">
+
+    <div class="portal-topbar" aria-hidden="true"></div>
+
+    {showNav && user && (
+      <header id="portal-header" style="position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--color-portal-bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-portal-border);">
+        <nav style="max-width: 80rem; margin: 0 auto; padding: 0 1.5rem; height: 4rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+          <a href="https://www.soggyinkgames.com" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; opacity: 0.9; transition: opacity 150ms;" title="Back to Soggy Ink Games">
+            <img
+              src="https://res.cloudinary.com/soggy-ink-games/image/upload/v1651059402/soggyInkGamesSMALL_axleob.png"
+              alt="Soggy Ink Games"
+              style="height: 2rem; width: 2rem; object-fit: contain;"
+            />
+            <div style="display: flex; flex-direction: column; line-height: 1; gap: 3px;">
+              <span style="font-family: var(--font-family-display); font-size: 0.6rem; color: var(--color-ink-secondary); letter-spacing: 0.15em; text-transform: uppercase;">Soggy Ink Games</span>
+              <span style="font-family: var(--font-family-display); font-size: 0.6rem; color: var(--color-brand-teal); letter-spacing: 0.15em; text-transform: uppercase;">Investor Portal</span>
+            </div>
+          </a>
+
+          <div id="nav-links" style="display: flex; align-items: center; gap: 0.125rem; flex-wrap: wrap;">
+            {navLinks.map(link => {
+              const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
+              return (
+                <a
+                  href={link.href}
+                  style={`display: inline-flex; align-items: center; padding: 0.375rem 0.625rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 150ms; ${
+                    isActive
+                      ? 'color: var(--color-brand-teal); background: color-mix(in srgb, var(--color-brand-teal) 10%, transparent);'
+                      : 'color: var(--color-ink-secondary);'
+                  }`}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1; gap: 4px;">
+              <span style="font-size: 0.7rem; color: var(--color-ink-primary); font-weight: 500; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{user.name || user.email}</span>
+              <span style={`font-size: 0.6rem; font-weight: 500; padding: 2px 6px; border-radius: 9999px; ${
+                isInvested
+                  ? 'background: color-mix(in srgb, var(--color-brand-purple) 15%, transparent); color: var(--color-brand-purple); border: 1px solid color-mix(in srgb, var(--color-brand-purple) 30%, transparent);'
+                  : 'background: color-mix(in srgb, var(--color-brand-teal) 15%, transparent); color: var(--color-brand-teal); border: 1px solid color-mix(in srgb, var(--color-brand-teal) 30%, transparent);'
+              }`}>
+                {isInvested ? 'Invested' : 'Prospective'}
+              </span>
+            </div>
+            <form method="POST" action="/investors/api/logout" style="margin: 0;">
+              <button type="submit" style="display: inline-flex; align-items: center; padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500; color: var(--color-ink-secondary); background: transparent; border: none; cursor: pointer; transition: all 150ms; font-family: var(--font-family-body);">
+                Sign out
+              </button>
+            </form>
+          </div>
+        </nav>
+      </header>
+    )}
+
+    <main style="flex: 1; animation: fadeIn 0.35s cubic-bezier(0.23, 1, 0.32, 1);">
+      <slot />
+    </main>
+
+    <footer style="border-top: 1px solid var(--color-portal-border); margin-top: auto;">
+      <div style="max-width: 80rem; margin: 0 auto; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 1rem; text-align: center;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <img
+            src="https://res.cloudinary.com/soggy-ink-games/image/upload/v1651059402/soggyInkGamesSMALL_axleob.png"
+            alt="Soggy Ink Games"
+            style="height: 1.5rem; width: 1.5rem; object-fit: contain; opacity: 0.5;"
+          />
+          <span style="font-family: var(--font-family-display); font-size: 0.65rem; color: var(--color-ink-muted); letter-spacing: 0.15em; text-transform: uppercase;">Soggy Ink Games</span>
+        </div>
+        <p style="font-size: 0.7rem; color: var(--color-ink-muted); line-height: 1.6;">
+          This portal is private and confidential. Unauthorised access is prohibited.
+          <a href="https://www.soggyinkgames.com" style="color: var(--color-brand-teal); text-decoration: none; margin-left: 0.5rem;">← Back to main site</a>
+        </p>
+        <p style="font-size: 0.7rem; color: var(--color-ink-muted);">© {new Date().getFullYear()} Soggy Ink Games Pty Ltd</p>
+      </div>
+    </footer>
+
+    <style is:global>
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      #nav-links a:hover {
+        color: var(--color-ink-primary) !important;
+        background: color-mix(in srgb, var(--color-portal-border) 60%, transparent) !important;
+      }
+      button:hover {
+        color: var(--color-ink-primary) !important;
+        background: color-mix(in srgb, var(--color-portal-surface) 80%, transparent) !important;
+      }
+    </style>
+  </body>
+</html>

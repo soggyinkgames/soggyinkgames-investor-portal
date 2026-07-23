@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const investor = Astro.locals.investor!;
+const supabase = Astro.locals.supabase;
+
+const { data: milestones } = await supabase
+  .from('milestones')
+  .select('*')
+  .order('date', { ascending: false });
+
+const milestonesByYear = (milestones || []).reduce((acc: Record<number, typeof milestones>, m) => {
+  const year = new Date(m.date).getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year]!.push(m);
+  return acc;
+}, {} as Record<number, typeof milestones>);
+
+const years = Object.keys(milestonesByYear).map(Number).sort((a, b) => b - a);
+---
+
+<BaseLayout
+  title="Milestones — Soggy Ink Games Investor Portal"
+  user={investor}
+  showNav={true}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-10">
+      <a href="/investors/dashboard" class="inline-flex items-center gap-1.5 text-xs mb-6 transition-colors" style="color: var(--color-ink-muted)">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to dashboard
+      </a>
+      <div class="badge-prospective mb-4">Prospective investor</div>
+      <h1 class="font-display text-3xl mb-3" style="color: var(--color-ink-primary)">Milestones</h1>
+      <p style="color: var(--color-ink-secondary)" class="leading-relaxed max-w-2xl">
+        A transparent record of where we've been and where we're going.
+      </p>
+    </div>
+
+    <div class="portal-divider mb-10"></div>
+
+    {milestones && milestones.length > 0 ? (
+      <div class="relative">
+        <div class="absolute left-4 top-0 bottom-0 w-px" style="background: var(--color-portal-border)" aria-hidden="true"></div>
+        <div>
+          {years.map(year => (
+            <div class="mb-8">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--color-portal-surface); border: 2px solid var(--color-brand-teal)">
+                  <div class="w-2 h-2 rounded-full" style="background: var(--color-brand-teal)"></div>
+                </div>
+                <span class="font-display text-sm tracking-wider" style="color: var(--color-brand-teal)">{year}</span>
+              </div>
+              <div class="ml-12 space-y-4">
+                {(milestonesByYear[year] || []).map((m, idx) => (
+                  <div class="portal-card" style={`animation: slideUp 0.4s cubic-bezier(0.23,1,0.32,1) ${idx * 60}ms both`}>
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-3 mb-2">
+                          <h3 class="font-display text-sm leading-snug" style="color: var(--color-ink-primary)">{m.title}</h3>
+                          {m.visibility === 'invested' && (
+                            <span class="badge-invested" style="font-size: 10px">Invested</span>
+                          )}
+                        </div>
+                        <p class="text-sm leading-relaxed" style="color: var(--color-ink-secondary)">{m.description}</p>
+                      </div>
+                      <div class="text-right flex-shrink-0">
+                        <span class="text-xs" style="color: var(--color-ink-muted)">
+                          {new Date(m.date).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <div class="portal-card text-center py-16">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--color-portal-bg); border: 1px solid var(--color-portal-border)">
+          <svg class="w-7 h-7" style="color: var(--color-ink-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h3 class="font-display text-sm mb-2" style="color: var(--color-ink-primary)">Milestones coming soon</h3>
+        <p class="text-xs max-w-xs mx-auto leading-relaxed" style="color: var(--color-ink-muted)">
+          We're preparing the milestone timeline. Check back soon.
+        </p>
+      </div>
+    )}
+
+    <div class="flex items-center justify-between pt-8 portal-divider mt-10">
+      <a href="/investors/scientific-pitch" class="btn-ghost text-sm">← Scientific Pitch</a>
+      <a href="/investors/team" class="btn-primary text-sm">Meet the team →</a>
+    </div>
+  </div>
+</BaseLayout>

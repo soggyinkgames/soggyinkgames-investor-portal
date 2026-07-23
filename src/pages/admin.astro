@@ -1,0 +1,224 @@
+---
+/**
+ * /investors/admin — Founder-only admin dashboard
+ * 
+ * Shows the events log: who's viewed what, and when.
+ * Also shows all investor records for quick status review.
+ * 
+ * SECURITY: This page checks for a specific admin email from env.
+ * For v1, this is a simple email check — upgrade to a proper admin
+ * role system if multiple people need access.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createSupabaseClient, createSupabaseAdmin } from '../lib/supabase';
+
+const supabase = createSupabaseClient(Astro.cookies, Astro.request);
+
+// Verify session
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) {
+  return Astro.redirect('/investors/login?next=/investors/admin');
+}
+
+// Check admin email
+const ADMIN_EMAIL = import.meta.env.ADMIN_EMAIL || import.meta.env.FOUNDER_NOTIFICATION_EMAIL;
+if (!ADMIN_EMAIL || session.user.email !== ADMIN_EMAIL) {
+  return Astro.redirect('/investors/dashboard');
+}
+
+// Use admin client for full data access
+const adminSupabase = createSupabaseAdmin();
+
+// Fetch all investors
+const { data: investors } = await adminSupabase
+  .from('investors')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+// Fetch recent events with investor info
+const { data: events } = await adminSupabase
+  .from('events')
+  .select(`
+    *,
+    investors (
+      name,
+      email,
+      role
+    )
+  `)
+  .order('created_at', { ascending: false })
+  .limit(100);
+
+// Stats
+const totalInvestors = investors?.length ?? 0;
+const approvedInvestors = investors?.filter(i => i.approved).length ?? 0;
+const pendingInvestors = investors?.filter(i => !i.approved).length ?? 0;
+const investedCount = investors?.filter(i => i.role === 'invested' && i.approved).length ?? 0;
+
+// Event type counts
+const loginCount = events?.filter(e => e.event_type === 'login').length ?? 0;
+const pageViewCount = events?.filter(e => e.event_type === 'page_view').length ?? 0;
+const docViewCount = events?.filter(e => e.event_type === 'document_view').length ?? 0;
+
+// Fake investor for layout (admin is not necessarily in investors table)
+const adminUser = {
+  id: session.user.id,
+  email: session.user.email!,
+  name: 'Admin',
+  role: 'invested' as const,
+  approved: true,
+};
+---
+
+<BaseLayout
+  title="Admin — Soggy Ink Games Investor Portal"
+  user={adminUser}
+  showNav={false}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="badge-invested text-[10px]">Admin</span>
+          <span class="text-xs text-ink-muted">{session.user.email}</span>
+        </div>
+        <h1 class="font-display text-2xl text-ink-primary">Investor Admin</h1>
+        <p class="text-sm text-ink-secondary mt-1">Engagement dashboard and investor management</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/investors/dashboard" class="btn-ghost text-xs">← Portal</a>
+        <form method="POST" action="/investors/api/logout">
+          <button type="submit" class="btn-ghost text-xs">Sign out</button>
+        </form>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
+      {[
+        { label: 'Total investors', value: totalInvestors, color: 'text-ink-primary' },
+        { label: 'Approved', value: approvedInvestors, color: 'text-brand-teal' },
+        { label: 'Pending', value: pendingInvestors, color: 'text-brand-yellow' },
+        { label: 'Invested', value: investedCount, color: 'text-brand-purple' },
+        { label: 'Logins', value: loginCount, color: 'text-ink-secondary' },
+        { label: 'Page views', value: pageViewCount, color: 'text-ink-secondary' },
+        { label: 'Doc views', value: docViewCount, color: 'text-brand-pink' },
+      ].map(stat => (
+        <div class="portal-card text-center py-3">
+          <div class={`font-display text-xl mb-1 ${stat.color}`}>{stat.value}</div>
+          <div class="text-[10px] text-ink-muted uppercase tracking-wider">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      <div>
+        <h2 class="font-display text-sm text-ink-secondary tracking-widest uppercase mb-4">Investors</h2>
+        <div class="portal-card p-0 overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-portal-border">
+                <th class="text-left px-4 py-3 text-xs text-ink-muted font-medium uppercase tracking-wider">Name / Email</th>
+                <th class="text-left px-4 py-3 text-xs text-ink-muted font-medium uppercase tracking-wider">Role</th>
+                <th class="text-left px-4 py-3 text-xs text-ink-muted font-medium uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {investors && investors.length > 0 ? investors.map((inv, idx) => (
+                <tr class={`border-b border-portal-border/50 hover:bg-portal-bg/50 transition-colors ${idx === investors.length - 1 ? 'border-b-0' : ''}`}>
+                  <td class="px-4 py-3">
+                    <div class="font-medium text-ink-primary text-xs">{inv.name || '—'}</div>
+                    <div class="text-ink-muted text-[11px]">{inv.email}</div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class={inv.role === 'invested' ? 'badge-invested text-[10px]' : 'badge-prospective text-[10px]'}>
+                      {inv.role}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    {inv.approved ? (
+                      <span class="inline-flex items-center gap-1 text-[10px] text-green-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                        Approved
+                      </span>
+                    ) : (
+                      <span class="inline-flex items-center gap-1 text-[10px] text-brand-yellow">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-yellow"></span>
+                        Pending
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colspan="3" class="px-4 py-8 text-center text-xs text-ink-muted">No investors yet</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-ink-muted mt-3">
+          To approve or promote investors, use{' '}
+          <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" class="text-brand-teal hover:text-brand-teal/80">
+            Supabase Studio
+          </a>{' '}
+          → investors table.
+        </p>
+      </div>
+      <div>
+        <h2 class="font-display text-sm text-ink-secondary tracking-widest uppercase mb-4">Recent activity</h2>
+        <div class="portal-card p-0 overflow-hidden">
+          <div class="max-h-96 overflow-y-auto">
+            {events && events.length > 0 ? (
+              <table class="w-full text-sm">
+                <thead class="sticky top-0 bg-portal-surface">
+                  <tr class="border-b border-portal-border">
+                    <th class="text-left px-4 py-3 text-xs text-ink-muted font-medium uppercase tracking-wider">Investor</th>
+                    <th class="text-left px-4 py-3 text-xs text-ink-muted font-medium uppercase tracking-wider">Event</th>
+                    <th class="text-left px-4 py-3 text-xs text-ink-muted font-medium uppercase tracking-wider">When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((event, idx) => {
+                    const inv = (event as any).investors;
+                    const eventColors: Record<string, string> = {
+                      login: 'text-brand-teal',
+                      page_view: 'text-ink-secondary',
+                      document_view: 'text-brand-pink',
+                    };
+                    return (
+                      <tr class={`border-b border-portal-border/50 hover:bg-portal-bg/50 transition-colors ${idx === events.length - 1 ? 'border-b-0' : ''}`}>
+                        <td class="px-4 py-2.5">
+                          <div class="text-[11px] text-ink-primary font-medium">{inv?.name || '—'}</div>
+                          <div class="text-[10px] text-ink-muted">{inv?.email}</div>
+                        </td>
+                        <td class="px-4 py-2.5">
+                          <div class={`text-[11px] font-medium ${eventColors[event.event_type] || 'text-ink-secondary'}`}>
+                            {event.event_type.replace('_', ' ')}
+                          </div>
+                          <div class="text-[10px] text-ink-muted truncate max-w-[120px]">{event.target}</div>
+                        </td>
+                        <td class="px-4 py-2.5 text-[10px] text-ink-muted whitespace-nowrap">
+                          {new Date(event.created_at).toLocaleDateString('en-AU', {
+                            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div class="px-4 py-8 text-center text-xs text-ink-muted">No events yet</div>
+            )}
+          </div>
+        </div>
+        <p class="text-xs text-ink-muted mt-3">
+          Full event history available in{' '}
+          <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" class="text-brand-teal hover:text-brand-teal/80">
+            Supabase Studio
+          </a>{' '}
+          → events table.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

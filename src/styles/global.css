@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ============================================================
+   Tailwind v4 theme — design tokens as CSS custom properties
+   ============================================================ */
+@theme {
+  /* Brand colors */
+  --color-brand-teal:   #00acd2;
+  --color-brand-purple: #8d52fb;
+  --color-brand-pink:   #ff66c4;
+  --color-brand-yellow: #f6f54d;
+
+  /* Portal surfaces */
+  --color-portal-bg:      #0f1623;
+  --color-portal-surface: #162032;
+  --color-portal-border:  #1e2d42;
+
+  /* Text hierarchy */
+  --color-ink-primary:   #e8edf5;
+  --color-ink-secondary: #8fa3bf;
+  --color-ink-muted:     #4d6480;
+
+  /* Typography */
+  --font-family-display: "Syncopate", sans-serif;
+  --font-family-body:    "Inter", sans-serif;
+  --font-family-mono:    "Cousine", monospace;
+
+  /* Box shadows */
+  --shadow-portal:       0 4px 24px rgba(0, 172, 210, 0.08);
+  --shadow-portal-hover: 0 8px 32px rgba(0, 172, 210, 0.16);
+  --shadow-glow-teal:    0 0 20px rgba(0, 172, 210, 0.3);
+  --shadow-glow-pink:    0 0 20px rgba(255, 102, 196, 0.3);
+
+  /* Background images */
+  --background-image-brand-gradient: linear-gradient(135deg, #8d52fb, #ff66c4, #00acd2);
+  --background-image-portal-gradient: linear-gradient(135deg, #0f1623, #162032);
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-slide-up: slideUp 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ============================================================
+   Base styles
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-portal-bg);
+    color: var(--color-ink-primary);
+    font-family: var(--font-family-body);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-display);
+    letter-spacing: 0.05em;
+  }
+
+  a {
+    transition: color 150ms ease-out;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-portal-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-portal-border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-muted);
+  }
+}
+
+/* ============================================================
+   Component classes
+   ============================================================ */
+@layer components {
+  /* Portal top bar accent */
+  .portal-topbar {
+    height: 2px;
+    width: 100%;
+    background-image: var(--background-image-brand-gradient);
+  }
+
+  /* Branded button */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-brand-teal);
+    color: var(--color-portal-bg);
+    font-family: var(--font-family-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 150ms cubic-bezier(0.23, 1, 0.32, 1);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-glow-teal);
+  }
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-portal-border);
+    color: var(--color-ink-primary);
+    font-family: var(--font-family-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    background: transparent;
+    transition: all 150ms cubic-bezier(0.23, 1, 0.32, 1);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-brand-teal);
+    color: var(--color-brand-teal);
+  }
+  .btn-secondary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    color: var(--color-ink-secondary);
+    font-family: var(--font-family-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    background: transparent;
+    transition: all 150ms cubic-bezier(0.23, 1, 0.32, 1);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-ghost:hover {
+    color: var(--color-ink-primary);
+    background-color: var(--color-portal-surface);
+  }
+  .btn-ghost:active {
+    transform: scale(0.97);
+  }
+
+  /* Card component */
+  .portal-card {
+    background-color: var(--color-portal-surface);
+    border: 1px solid var(--color-portal-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-portal);
+    transition: box-shadow 200ms ease-out;
+  }
+  .portal-card:hover {
+    box-shadow: var(--shadow-portal-hover);
+  }
+
+  /* Badge components */
+  .badge-prospective {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: color-mix(in srgb, var(--color-brand-teal) 15%, transparent);
+    color: var(--color-brand-teal);
+    border: 1px solid color-mix(in srgb, var(--color-brand-teal) 30%, transparent);
+  }
+
+  .badge-invested {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: color-mix(in srgb, var(--color-brand-purple) 15%, transparent);
+    color: var(--color-brand-purple);
+    border: 1px solid color-mix(in srgb, var(--color-brand-purple) 30%, transparent);
+  }
+
+  .badge-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: color-mix(in srgb, var(--color-portal-border) 50%, transparent);
+    color: var(--color-ink-muted);
+    border: 1px solid var(--color-portal-border);
+  }
+
+  /* Form inputs */
+  .portal-input {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-portal-bg);
+    border: 1px solid var(--color-portal-border);
+    color: var(--color-ink-primary);
+    font-size: 0.875rem;
+    transition: border-color 150ms ease-out;
+    outline: none;
+  }
+  .portal-input::placeholder {
+    color: var(--color-ink-muted);
+  }
+  .portal-input:focus {
+    border-color: var(--color-brand-teal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-teal) 15%, transparent);
+  }
+
+  /* Section divider */
+  .portal-divider {
+    border-top: 1px solid var(--color-portal-border);
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background-image: var(--background-image-brand-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

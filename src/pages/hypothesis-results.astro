@@ -1,0 +1,143 @@
+---
+/**
+ * /investors/hypothesis-results — Invested only
+ * 
+ * Hypothesis test results and validation data.
+ * Middleware enforces role = 'invested' before reaching this page.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const investor = Astro.locals.investor!;
+const supabase = Astro.locals.supabase;
+
+// Fetch research documents (invested-level)
+const { data: resultDocs } = await supabase
+  .from('documents')
+  .select('*')
+  .eq('category', 'research')
+  .eq('access_level', 'invested')
+  .order('created_at', { ascending: false });
+---
+
+<BaseLayout
+  title="Hypothesis Results — Soggy Ink Games Investor Portal"
+  user={investor}
+  showNav={true}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-10">
+      <a href="/investors/dashboard" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-6 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to dashboard
+      </a>
+      <div class="badge-invested mb-4">Invested investor</div>
+      <h1 class="font-display text-3xl text-ink-primary mb-3">Hypothesis Results</h1>
+      <p class="text-ink-secondary leading-relaxed max-w-2xl">
+        Test results, validation data, and detailed analysis from our hypothesis-driven design process.
+      </p>
+    </div>
+
+    <div class="portal-divider mb-10"></div>
+    <div class="mb-8 p-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 flex items-start gap-3">
+      <svg class="w-5 h-5 text-brand-purple flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <div>
+        <p class="text-sm font-medium text-brand-purple">Invested investor content</p>
+        <p class="text-xs text-brand-purple/70 mt-0.5 leading-relaxed">
+          This section contains proprietary research results. All documents are watermarked with your details.
+          Do not share or distribute.
+        </p>
+      </div>
+    </div>
+    <section class="mb-12">
+      <h2 class="font-display text-lg text-ink-primary mb-5">Results overview</h2>
+      <div class="space-y-4">
+        {[
+          {
+            id: 'H1',
+            hypothesis: '[Hypothesis 1 — same text as shown in Scientific Pitch]',
+            result: 'Validated',
+            summary: '[Replace with the actual test result — what you tested, how, what you found, what it means for the product.]',
+            confidence: 85,
+          },
+          {
+            id: 'H2',
+            hypothesis: '[Hypothesis 2]',
+            result: 'Partially validated',
+            summary: '[Result summary]',
+            confidence: 62,
+          },
+          {
+            id: 'H3',
+            hypothesis: '[Hypothesis 3]',
+            result: 'In progress',
+            summary: '[Current status and preliminary findings]',
+            confidence: null,
+          },
+        ].map(h => (
+          <div class="portal-card">
+            <div class="flex items-start gap-4">
+              <div class="font-display text-xs text-brand-purple bg-brand-purple/10 border border-brand-purple/20 rounded px-2 py-1 flex-shrink-0 mt-0.5">
+                {h.id}
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-ink-primary mb-2 leading-relaxed">{h.hypothesis}</p>
+                <p class="text-xs text-ink-secondary leading-relaxed mb-3">{h.summary}</p>
+                <div class="flex items-center gap-4">
+                  <span class={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium
+                    ${h.result === 'Validated' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                      h.result === 'Partially validated' ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
+                      'bg-portal-border/50 text-ink-muted border border-portal-border'}`}>
+                    {h.result}
+                  </span>
+                  {h.confidence !== null && (
+                    <div class="flex items-center gap-2 flex-1">
+                      <span class="text-xs text-ink-muted">Confidence</span>
+                      <div class="flex-1 h-1.5 bg-portal-bg rounded-full overflow-hidden">
+                        <div
+                          class="h-full bg-brand-teal rounded-full transition-all duration-700"
+                          style={`width: ${h.confidence}%`}
+                        ></div>
+                      </div>
+                      <span class="text-xs text-ink-secondary font-medium">{h.confidence}%</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+    {resultDocs && resultDocs.length > 0 && (
+      <section class="mb-12">
+        <h2 class="font-display text-lg text-ink-primary mb-5">Detailed reports</h2>
+        <div class="space-y-3">
+          {resultDocs.map(doc => (
+            <div class="portal-card flex items-center justify-between gap-4 py-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <svg class="w-5 h-5 text-brand-purple flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <div class="min-w-0">
+                  <p class="text-sm text-ink-primary font-medium truncate">{doc.title}</p>
+                  <p class="text-xs text-ink-muted">PDF · Watermarked · Invested only</p>
+                </div>
+              </div>
+              <a href={`/investors/api/document/${doc.id}`} target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs flex-shrink-0">
+                View
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+    <div class="flex items-center justify-between pt-6 portal-divider">
+      <a href="/investors/team" class="btn-ghost text-sm">← Team</a>
+      <a href="/investors/legal" class="btn-primary text-sm">Legal Documents →</a>
+    </div>
+  </div>
+</BaseLayout>
