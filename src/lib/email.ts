@@ -12,7 +12,7 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
-const FROM_EMAIL = import.meta.env.RESEND_FROM_EMAIL || 'investors@soggyinkgames.com';
+const FROM_EMAIL = import.meta.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
 export interface MagicLinkEmailOptions {
   to: string;
