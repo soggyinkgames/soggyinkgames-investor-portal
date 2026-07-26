@@ -20,9 +20,16 @@ if (!session) {
   return Astro.redirect('/investors/login?next=/investors/admin');
 }
 
-// Check admin email
-const ADMIN_EMAIL = import.meta.env.ADMIN_EMAIL || import.meta.env.FOUNDER_NOTIFICATION_EMAIL;
-if (!ADMIN_EMAIL || session.user.email !== ADMIN_EMAIL) {
+// 1. Array of authorized emails (filters out undefined vars)
+const ADMIN_EMAILS = [
+  import.meta.env.ADMIN_EMAIL,
+  import.meta.env.FOUNDER_NOTIFICATION_EMAIL
+].filter(Boolean);
+
+// 2. Safe session check & authorization
+const userEmail = session?.user?.email;
+
+if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
   return Astro.redirect('/investors/dashboard');
 }
 
