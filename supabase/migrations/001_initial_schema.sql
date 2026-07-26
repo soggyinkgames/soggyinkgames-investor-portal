@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS public.investors (
 COMMENT ON TABLE public.investors IS 'Investor accounts. Role and approval are set manually by the founder.';
 COMMENT ON COLUMN public.investors.approved IS 'Must be true before investor can access gated content.';
 COMMENT ON COLUMN public.investors.role IS 'prospective = pitch deck + milestones; invested = everything including legal + results.';
+COMMENT ON COLUMN public.investors.status IS 'Soft-delete status: active, archived, or revoked.';
 
 -- documents: pitch decks, legal docs, research, team bios
 CREATE TABLE IF NOT EXISTS public.documents (
@@ -89,6 +90,7 @@ COMMENT ON TABLE public.team_members IS 'Team member profiles shown on the /team
 
 CREATE INDEX IF NOT EXISTS idx_investors_email ON public.investors(email);
 CREATE INDEX IF NOT EXISTS idx_investors_role ON public.investors(role);
+CREATE INDEX IF NOT EXISTS idx_investors_status ON public.investors(status);
 CREATE INDEX IF NOT EXISTS idx_documents_access_level ON public.documents(access_level);
 CREATE INDEX IF NOT EXISTS idx_documents_category ON public.documents(category);
 CREATE INDEX IF NOT EXISTS idx_milestones_date ON public.milestones(date DESC);
@@ -138,9 +140,7 @@ $$;
 -- Pattern: anon key can only read their own investor row.
 -- Service role key (server-side only) has full access.
 
-ALTER TABLE public.investors    
-  ADD COLUMN status TEXT NOT NULL DEFAULT 'active' 
-  CHECK (status IN ('active', 'archived', 'revoked'));
+ALTER TABLE public.investors    ENABLE ROW LEVEL SECURITY; 
 ALTER TABLE public.documents    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.milestones   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events       ENABLE ROW LEVEL SECURITY;
@@ -160,7 +160,6 @@ DROP POLICY IF EXISTS "team_members_read"         ON public.team_members;
 -- investors: each investor can only read/update their own row
 CREATE POLICY "investors_self_read" ON public.investors
   FOR SELECT
-  -- USING (auth.jwt() ->> 'email' = email); --todo: ian 2 security added
   USING (
     auth.uid() = id
     AND status = 'active'
@@ -193,32 +192,6 @@ CREATE POLICY "documents_invested_read" ON public.documents
     AND (SELECT public.is_approved_investor('invested'))
   );
 
--- -- documents: prospective investors can read prospective-level docs
--- CREATE POLICY "documents_prospective_read" ON public.documents
---   FOR SELECT
---   USING (
---     access_level = 'prospective'
---     AND EXISTS (
---       SELECT 1 FROM public.investors
---       WHERE email = auth.jwt() ->> 'email'
---         AND approved = TRUE
---         AND role IN ('prospective', 'invested')
---     )
---   );
-
--- -- documents: invested investors can read all docs
--- CREATE POLICY "documents_invested_read" ON public.documents
---   FOR SELECT
---   USING (
---     access_level = 'invested'
---     AND EXISTS (
---       SELECT 1 FROM public.investors
---       WHERE email = auth.jwt() ->> 'email'
---         AND approved = TRUE
---         AND role = 'invested'
---     )
---   );
-
 -- 3. MILESTONES approved investors can read milestones
 CREATE POLICY "milestones_prospective_read" ON public.milestones
   FOR SELECT
@@ -226,27 +199,12 @@ CREATE POLICY "milestones_prospective_read" ON public.milestones
     (SELECT public.is_approved_investor('prospective'))
   );
 
--- -- milestones: approved investors can read milestones
--- CREATE POLICY "milestones_prospective_read" ON public.milestones
---   FOR SELECT
---   USING (
---     EXISTS (
---       SELECT 1 FROM public.investors
---       WHERE email = auth.jwt() ->> 'email'
---         AND approved = TRUE
---     )
---   );
-
--- 4. events: investors can insert their own events
+-- 4. EVENTS: investors can insert their own events
 CREATE POLICY "events_self_insert" ON public.events
   FOR INSERT
   WITH CHECK (
     (SELECT public.is_approved_investor('prospective')) --todo: ian 3 security added
-    AND investor_id = ( --todo: ian 3 security added
-      SELECT id FROM public.investors
-      WHERE id = auth.uid()
-      LIMIT 1
-    )
+    AND investor_id = auth.uid()
   );
 
 -- 4. events: investors can read their own events
@@ -254,10 +212,7 @@ CREATE POLICY "events_self_read" ON public.events
   FOR SELECT
   USING (
     (SELECT public.is_approved_investor('prospective')) --todo: ian 3 security added
-    AND investor_id = ( --todo: ian 3 security added      SELECT id FROM public.investors
-      WHERE id = auth.uid()
-      LIMIT 1
-    )
+    AND investor_id = auth.uid()
   );
 
 -- 5. TEAM MEMBERS
@@ -267,16 +222,26 @@ CREATE POLICY "team_members_read" ON public.team_members
     (SELECT public.is_approved_investor('prospective'))
   );
 
--- -- team_members: any approved investor can read
--- CREATE POLICY "team_members_read" ON public.team_members
---   FOR SELECT
---   USING (
---     EXISTS (
---       SELECT 1 FROM public.investors
---       WHERE email = auth.jwt() ->> 'email'
---         AND approved = TRUE
---     )
---   );
+-- ============================================================
+-- 6. TABLE PERMISSIONS (GRANTS)
+-- ============================================================
+
+-- Service role (Admin/Backend) full access
+GRANT ALL ON public.investors    TO service_role;
+GRANT ALL ON public.documents    TO service_role;
+GRANT ALL ON public.milestones   TO service_role;
+GRANT ALL ON public.events       TO service_role;
+GRANT ALL ON public.team_members TO service_role;
+
+-- Authenticated (Logged-in Users) coarse access
+GRANT SELECT, INSERT ON public.investors    TO authenticated;
+GRANT SELECT         ON public.documents    TO authenticated;
+GRANT SELECT         ON public.milestones   TO authenticated;
+GRANT SELECT, INSERT ON public.events       TO authenticated;
+GRANT SELECT         ON public.team_members TO authenticated;
+
+-- Sequences access for auto-increments
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role, authenticated;
 
 -- ============================================================
 -- SUPABASE STORAGE BUCKET

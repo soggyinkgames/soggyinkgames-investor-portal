@@ -2,14 +2,14 @@
  * /investors/api/request-access
  * 
  * Handles the public "Request access" form submission.
- * Creates an investors row with approved=false for manual review.
+ * Creates an auth.users record and an investors row (approved=false) for manual review.
  * Sends a notification email to the founder.
  */
 import type { APIRoute } from 'astro';
 import { createSupabaseAdmin } from '../../lib/supabase';
 import { sendAccessRequestNotification } from '../../lib/email';
 
-const FOUNDER_EMAIL = import.meta.env.FOUNDER_NOTIFICATION_EMAIL || 'soggyinkgames@gmail.com';
+const FOUNDER_EMAIL = import.meta.env.FOUNDER_NOTIFICATION_EMAIL || 'ian.araya002@gmail.com';
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const formData = await request.formData();
@@ -24,31 +24,45 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   const adminSupabase = createSupabaseAdmin();
 
-  // Check if already registered
+  // 1. Check if already registered in investors table
   const { data: existing } = await adminSupabase
     .from('investors')
     .select('id, approved')
     .eq('email', email)
-    .single();
+    .maybeSingle(); // maybeSingle avoids throwing error if no row found
 
   if (existing) {
     if (existing.approved) {
-      // Already approved — send to login
       return redirect('/investors/login?reason=already-approved');
     } else {
-      // Already submitted — show pending message
       return redirect('/investors/request-access?status=already-submitted');
     }
   }
 
-  // Create investor record (unapproved)
+  // 2. Create the user in Supabase Auth via Admin API
+  // email_confirm: true skips sending a confirmation email for now
+  const { data: authData, error: authError } = await adminSupabase.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    user_metadata: { name }
+  });
+
+  if (authError) {
+    // If the user already exists in auth.users but not in investors table, handle gracefully
+    console.error('[request-access] Auth user creation failed:', authError);
+    return redirect('/investors/request-access?error=server-error');
+  }
+
+  // 3. Insert investor record tied directly to the new Auth user ID
   const { error: insertError } = await adminSupabase
     .from('investors')
     .insert({
+      id: authData.user.id, // 👈 FIXES NULL CONSTRAINTS
       name,
       email,
       role: 'prospective',
       approved: false,
+      status: 'active'
     });
 
   if (insertError) {
@@ -56,7 +70,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     return redirect('/investors/request-access?error=server-error');
   }
 
-  // Notify founder
+  // 4. Notify founder
   try {
     await sendAccessRequestNotification({
       to: FOUNDER_EMAIL,
@@ -65,9 +79,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       message,
     });
   } catch (err) {
-    // Non-fatal — the record is created, notification is best-effort
     console.error('[request-access] Notification email failed:', err);
   }
 
   return redirect('/investors/request-access?status=submitted');
 };
+

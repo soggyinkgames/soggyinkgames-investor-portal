@@ -60,12 +60,42 @@ export const GET: APIRoute = async ({ params, cookies, request }) => {
     return new Response('Forbidden — this document requires invested investor access', { status: 403 });
   }
 
+  /**
+ * Strips full host, bucket prefixes, or leading slashes 
+ * leaving only the relative path inside the bucket.
+ */
+  function extractStoragePath(rawUrlOrPath: string, bucketName: string): string {
+    if (!rawUrlOrPath) return '';
+
+    let path = rawUrlOrPath;
+
+    // 1. If it's a full URL, strip everything up to the bucket name
+    if (path.includes('/storage/v1/object/')) {
+      const parts = path.split(`/${bucketName}/`);
+      if (parts.length > 1) {
+        path = parts.slice(1).join(`/${bucketName}/`);
+      }
+    }
+
+    // 2. Remove leading slashes if present
+    path = path.replace(/^\/+/, '');
+
+    // 3. If it starts with "bucketName/", strip it out
+    if (path.startsWith(`${bucketName}/`)) {
+      path = path.slice(bucketName.length + 1);
+    }
+
+    return path;
+  }
+
+  const storagePath = extractStoragePath(document.file_url, 'decks');
+
   // Use admin client to download from storage (bypasses RLS on storage)
   const adminSupabase = createSupabaseAdmin();
   const { data: fileData, error: downloadError } = await adminSupabase
     .storage
-    .from('investor-documents')
-    .download(document.file_url);
+    .from('decks')
+    .download(storagePath);
 
   if (downloadError || !fileData) {
     console.error('[document] Storage download failed:', downloadError);
@@ -74,7 +104,7 @@ export const GET: APIRoute = async ({ params, cookies, request }) => {
 
   const fileBytes = await fileData.arrayBuffer();
   const isPdf = document.file_url.toLowerCase().endsWith('.pdf') ||
-                fileData.type === 'application/pdf';
+    fileData.type === 'application/pdf';
 
   let responseBytes: Uint8Array | ArrayBuffer = fileBytes;
   let contentType = fileData.type || 'application/octet-stream';

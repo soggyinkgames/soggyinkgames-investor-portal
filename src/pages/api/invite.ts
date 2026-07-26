@@ -22,7 +22,7 @@ import { createSupabaseAdmin } from '../../lib/supabase';
 import { sendMagicLinkEmail } from '../../lib/email';
 
 export const POST: APIRoute = async ({ request }) => {
-  // Verify invite secret
+  // 1. Verify invite secret
   const inviteSecret = import.meta.env.INVITE_SECRET;
   const providedSecret = request.headers.get('X-Invite-Secret');
 
@@ -33,6 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
+  // 2. Parse request body
   let body: { name: string; email: string; role?: 'prospective' | 'invested' };
   try {
     body = await request.json();
@@ -54,12 +55,42 @@ export const POST: APIRoute = async ({ request }) => {
 
   const adminSupabase = createSupabaseAdmin();
 
-  // Upsert investor record (approved = true for invited investors)
+  // 3. Generate Magic Link FIRST (provisions/fetches the auth.users record)
+  const portalBaseUrl = import.meta.env.PORTAL_BASE_URL || 'http://localhost:4321';
+  const { data: authData, error: authError } = await adminSupabase.auth.admin.generateLink({
+    type: 'magiclink',
+    email,
+    options: {
+      redirectTo: `${portalBaseUrl}/investors/api/auth/callback`,
+    },
+  });
+
+  if (authError || !authData.user || !authData.properties?.action_link) {
+    console.error('[invite] Auth link generation failed:', authError);
+    return new Response(
+      JSON.stringify({ error: 'Failed to provision user auth or generate magic link' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  const magicLink = authData.properties.action_link;
+
+  // 4. Upsert investor record using the valid Auth User ID
   const { data: investor, error: upsertError } = await adminSupabase
     .from('investors')
     .upsert(
-      { name, email, role, approved: true },
-      { onConflict: 'email', ignoreDuplicates: false }
+      {
+        id: authData.user.id,
+        name,
+        email,
+        role,
+        approved: true,
+        status: 'active',
+      },
+      { onConflict: 'id', ignoreDuplicates: false }
     )
     .select()
     .single();
@@ -72,46 +103,34 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Create Supabase Auth user (or get existing)
-  const { data: authData, error: authError } = await adminSupabase.auth.admin.generateLink({
-    type: 'magiclink',
-    email,
-    options: {
-      redirectTo: `${import.meta.env.PORTAL_BASE_URL}/investors/api/auth/callback`,
-    },
-  });
-
-  if (authError || !authData.properties?.action_link) {
-    console.error('[invite] Magic link generation failed:', authError);
-    return new Response(JSON.stringify({ error: 'Failed to generate magic link' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  const magicLink = authData.properties.action_link;
-
-  // Send invite email
+  // 5. Send invite email via Resend
   try {
     await sendMagicLinkEmail({ to: email, name, magicLink });
   } catch (err) {
     console.error('[invite] Email failed:', err);
-    return new Response(JSON.stringify({
-      error: 'Investor created but email failed',
-      magic_link: magicLink,
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Investor created but email failed',
+        magic_link: magicLink,
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 
-  return new Response(JSON.stringify({
-    success: true,
-    investor_id: investor.id,
-    email,
-    role,
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  // 6. Return successful response
+  return new Response(
+    JSON.stringify({
+      success: true,
+      investor_id: investor.id,
+      email,
+      role,
+    }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 };
