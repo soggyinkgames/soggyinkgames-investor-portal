@@ -10,7 +10,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  base: '/investors',
-  site: 'https://soggyinkgames.com',
+  // base: '/investors',
+  // site: 'https://soggyinkgames.com',
 });
 
