@@ -11,4 +11,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   base: '/investors',
+  site: 'https://soggyinkgames.com',
 });
+
