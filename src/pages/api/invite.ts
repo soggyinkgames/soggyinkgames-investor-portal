@@ -56,7 +56,7 @@ export const POST: APIRoute = async ({ request }) => {
   const adminSupabase = createSupabaseAdmin();
 
   // 3. Generate Magic Link FIRST (provisions/fetches the auth.users record)
-  const portalBaseUrl = import.meta.env.PORTAL_BASE_URL || 'http://localhost:4321';
+  const portalBaseUrl = import.meta.env.PUBLIC_PORTAL_BASE_URL || 'https://soggyinkgames.com';
   const { data: authData, error: authError } = await adminSupabase.auth.admin.generateLink({
     type: 'magiclink',
     email,

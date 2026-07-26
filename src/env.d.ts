@@ -8,7 +8,7 @@ interface ImportMetaEnv {
   readonly ADMIN_EMAIL: string;
   readonly RESEND_API_KEY: string;
   readonly RESEND_FROM_EMAIL: string;
-  readonly PORTAL_BASE_URL: string;
+  readonly PUBLIC_PORTAL_BASE_URL: string;
 }
 
 interface ImportMeta {

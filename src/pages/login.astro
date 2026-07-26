@@ -56,7 +56,7 @@ if (Astro.request.method === 'POST') {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${import.meta.env.PORTAL_BASE_URL}/investors/api/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${import.meta.env.PUBLIC_PORTAL_BASE_URL}/investors/api/auth/callback?next=${encodeURIComponent(next)}`,
           shouldCreateUser: false,
         },
       });
