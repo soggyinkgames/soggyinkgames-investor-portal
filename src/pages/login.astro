@@ -1,169 +1,223 @@
 ---
 /**
  * /investors/login
- * 
+ *
  * Magic link login page.
  * Sends a one-time login link to the investor's email via Resend.
- * 
+ *
  * Also handles:
  * - ?reason=pending — show "awaiting approval" message
  * - ?reason=not-registered — show "request access" prompt
  * - ?next= — redirect after successful login
  */
 
-
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { createSupabaseClient, createSupabaseAdmin } from '../lib/supabase'; // 👈 Import admin client
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createSupabaseClient, createSupabaseAdmin } from "../lib/supabase"; // 👈 Import admin client
+import { portalUrl, safePortalRedirect, withPortalPrefix } from "../lib/paths";
 
 const supabase = createSupabaseClient(Astro.cookies, Astro.request);
 
 // Check if already logged in
-const { data: { session } } = await supabase.auth.getSession();
+const {
+  data: { session },
+} = await supabase.auth.getSession();
 if (session) {
-  return Astro.redirect('/investors/dashboard');
+  return Astro.redirect(withPortalPrefix("/dashboard"));
 }
 
-const reason = Astro.url.searchParams.get('reason');
-const next = Astro.url.searchParams.get('next') || '/investors/dashboard';
+const reason = Astro.url.searchParams.get("reason");
+const next = safePortalRedirect(
+  Astro.url.searchParams.get("next"),
+  "/dashboard",
+);
 
-let successMessage = '';
-let errorMessage = '';
+let successMessage = "";
+let errorMessage = "";
 
-if (Astro.request.method === 'POST') {
+if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
-  const email = (formData.get('email') as string)?.trim().toLowerCase();
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
 
-  if (!email || !email.includes('@')) {
-    errorMessage = 'Please enter a valid email address.';
+  if (!email || !email.includes("@")) {
+    errorMessage = "Please enter a valid email address.";
   } else {
     // 👈 Use adminSupabase to bypass RLS for this pre-flight check
     const adminSupabase = createSupabaseAdmin();
     const { data: investor } = await adminSupabase
-      .from('investors')
-      .select('id, approved, status')
-      .eq('email', email)
+      .from("investors")
+      .select("id, approved, status")
+      .eq("email", email)
       .maybeSingle();
 
     if (!investor) {
       // Not registered — redirect to request access
-      return Astro.redirect('/investors/request-access?reason=not-found');
+      return Astro.redirect(
+        `${withPortalPrefix("/request-access")}?reason=not-found`,
+      );
     }
 
-    if (!investor.approved || investor.status !== 'active') {
-      errorMessage = 'Your access request is still under review. We\'ll be in touch soon.';
+    if (!investor.approved || investor.status !== "active") {
+      errorMessage =
+        "Your access request is still under review. We'll be in touch soon.";
     } else {
       // Send magic link via Supabase Auth
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${import.meta.env.PUBLIC_PORTAL_BASE_URL}/investors/api/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${portalUrl("/api/auth/callback")}?next=${encodeURIComponent(next)}`,
           shouldCreateUser: false,
         },
       });
 
       if (error) {
-        console.error('[login] Magic link error:', error);
-        errorMessage = 'Failed to send login link. Please try again.';
+        console.error("[login] Magic link error:", error);
+        errorMessage = "Failed to send login link. Please try again.";
       } else {
         successMessage = email;
       }
     }
   }
 }
-
 ---
 
 <BaseLayout title="Sign In — Soggy Ink Games Investor Portal">
   <div class="min-h-screen flex items-center justify-center px-4 py-16">
     <div class="w-full max-w-md animate-slide-up">
       <div class="text-center mb-10">
-        <a href="https://www.soggyinkgames.com" class="inline-flex flex-col items-center gap-3 group">
+        <a
+          href="https://www.soggyinkgames.com"
+          class="inline-flex flex-col items-center gap-3 group"
+        >
           <img
             src="https://res.cloudinary.com/soggy-ink-games/image/upload/v1651059402/soggyInkGamesSMALL_axleob.png"
             alt="Soggy Ink Games"
             class="h-14 w-14 object-contain opacity-90 group-hover:opacity-100 transition-opacity"
           />
           <div class="flex flex-col items-center leading-none gap-1">
-            <span class="font-display text-xs text-ink-secondary tracking-widest uppercase">Soggy Ink Games</span>
-            <span class="font-display text-sm text-brand-teal tracking-widest uppercase">Investor Portal</span>
+            <span
+              class="font-display text-xs text-ink-secondary tracking-widest uppercase"
+              >Soggy Ink Games</span
+            >
+            <span
+              class="font-display text-sm text-brand-teal tracking-widest uppercase"
+              >Investor Portal</span
+            >
           </div>
         </a>
       </div>
-      {reason === 'pending' && (
-        <div class="mb-6 p-4 rounded-lg bg-brand-yellow/10 border border-brand-yellow/30 text-brand-yellow text-sm">
-          <strong>Access pending review.</strong> Your request has been received and is being reviewed. We'll send you a login link once approved.
-        </div>
-      )}
+      {
+        reason === "pending" && (
+          <div class="mb-6 p-4 rounded-lg bg-brand-yellow/10 border border-brand-yellow/30 text-brand-yellow text-sm">
+            <strong>Access pending review.</strong> Your request has been
+            received and is being reviewed. We'll send you a login link once
+            approved.
+          </div>
+        )
+      }
 
-      {reason === 'not-registered' && (
-        <div class="mb-6 p-4 rounded-lg bg-brand-teal/10 border border-brand-teal/30 text-brand-teal text-sm">
-          We don't have an account for that email. <a href="/investors/request-access" class="underline font-semibold">Request access</a> to get started.
-        </div>
-      )}
+      {
+        reason === "not-registered" && (
+          <div class="mb-6 p-4 rounded-lg bg-brand-teal/10 border border-brand-teal/30 text-brand-teal text-sm">
+            We don't have an account for that email.{" "}
+            <a href="/investors/request-access" class="underline font-semibold">
+              Request access
+            </a>{" "}
+            to get started.
+          </div>
+        )
+      }
       <div class="portal-card">
-        {!successMessage ? (
-          <>
-            <h1 class="font-display text-lg text-ink-primary mb-1">Sign in</h1>
-            <p class="text-sm text-ink-secondary mb-6">
-              Enter your email to receive a one-time login link.
-            </p>
+        {
+          !successMessage ? (
+            <>
+              <h1 class="font-display text-lg text-ink-primary mb-1">
+                Sign in
+              </h1>
+              <p class="text-sm text-ink-secondary mb-6">
+                Enter your email to receive a one-time login link.
+              </p>
 
-            {errorMessage && (
-              <div class="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-                {errorMessage}
+              {errorMessage && (
+                <div class="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                  {errorMessage}
+                </div>
+              )}
+
+              <form method="POST" class="space-y-4">
+                <div>
+                  <label
+                    for="email"
+                    class="block text-xs font-medium text-ink-secondary mb-1.5 uppercase tracking-wider"
+                  >
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                    class="portal-input"
+                  />
+                </div>
+                <button type="submit" class="btn-primary w-full">
+                  Send login link
+                </button>
+              </form>
+
+              <div class="portal-divider mt-6 pt-5">
+                <p class="text-xs text-ink-muted text-center">
+                  Don't have access yet?{" "}
+                  <a
+                    href="/investors/request-access"
+                    class="text-brand-teal hover:text-brand-teal/80"
+                  >
+                    Request access
+                  </a>
+                </p>
               </div>
-            )}
-
-            <form method="POST" class="space-y-4">
-              <div>
-                <label for="email" class="block text-xs font-medium text-ink-secondary mb-1.5 uppercase tracking-wider">
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  autocomplete="email"
-                  placeholder="you@example.com"
-                  class="portal-input"
-                />
+            </>
+          ) : (
+            <div class="text-center py-4">
+              <div class="w-12 h-12 rounded-full bg-brand-teal/15 border border-brand-teal/30 flex items-center justify-center mx-auto mb-4">
+                <svg
+                  class="w-6 h-6 text-brand-teal"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
               </div>
-              <button type="submit" class="btn-primary w-full">
-                Send login link
-              </button>
-            </form>
-
-            <div class="portal-divider mt-6 pt-5">
-              <p class="text-xs text-ink-muted text-center">
-                Don't have access yet?{' '}
-                <a href="/investors/request-access" class="text-brand-teal hover:text-brand-teal/80">
-                  Request access
-                </a>
+              <h2 class="font-display text-base text-ink-primary mb-2">
+                Check your email
+              </h2>
+              <p class="text-sm text-ink-secondary mb-1">
+                We've sent a login link to
+              </p>
+              <p class="text-sm font-semibold text-ink-primary mb-4">
+                {successMessage}
+              </p>
+              <p class="text-xs text-ink-muted">
+                The link expires in 1 hour. Check your spam folder if you don't
+                see it.
               </p>
             </div>
-          </>
-        ) : (
-          <div class="text-center py-4">
-            <div class="w-12 h-12 rounded-full bg-brand-teal/15 border border-brand-teal/30 flex items-center justify-center mx-auto mb-4">
-              <svg class="w-6 h-6 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h2 class="font-display text-base text-ink-primary mb-2">Check your email</h2>
-            <p class="text-sm text-ink-secondary mb-1">
-              We've sent a login link to
-            </p>
-            <p class="text-sm font-semibold text-ink-primary mb-4">{successMessage}</p>
-            <p class="text-xs text-ink-muted">
-              The link expires in 1 hour. Check your spam folder if you don't see it.
-            </p>
-          </div>
-        )}
+          )
+        }
       </div>
 
       <p class="text-center text-xs text-ink-muted mt-6">
-        <a href="https://www.soggyinkgames.com" class="hover:text-ink-secondary transition-colors">
+        <a
+          href="https://www.soggyinkgames.com"
+          class="hover:text-ink-secondary transition-colors"
+        >
           ← Back to soggyinkgames.com
         </a>
       </p>

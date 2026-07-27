@@ -3,7 +3,6 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import tailwindcss from '@tailwindcss/vite';
 
-// https://astro.build/config
 export default defineConfig({
   output: 'server',
   adapter: netlify(),
@@ -11,12 +10,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   security: {
-    checkOrigin: false,
-    allowedDomains: [
-      { protocol: 'https', hostname: 'soggyinkgames.com' }
-    ]
+    checkOrigin: false
   }
-  // base: '/investors',
-  // site: 'https://soggyinkgames.com',
 });
-

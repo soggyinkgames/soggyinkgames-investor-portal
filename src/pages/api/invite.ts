@@ -20,6 +20,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseAdmin } from '../../lib/supabase';
 import { sendMagicLinkEmail } from '../../lib/email';
+import { portalUrl } from '../../lib/paths';
 
 export const POST: APIRoute = async ({ request }) => {
   // 1. Verify invite secret
@@ -56,12 +57,11 @@ export const POST: APIRoute = async ({ request }) => {
   const adminSupabase = createSupabaseAdmin();
 
   // 3. Generate Magic Link FIRST (provisions/fetches the auth.users record)
-  const portalBaseUrl = import.meta.env.PUBLIC_PORTAL_BASE_URL || 'https://soggyinkgames.com';
   const { data: authData, error: authError } = await adminSupabase.auth.admin.generateLink({
     type: 'magiclink',
     email,
     options: {
-      redirectTo: `${portalBaseUrl}/investors/api/auth/callback`,
+      redirectTo: portalUrl('/api/auth/callback'),
     },
   });
 

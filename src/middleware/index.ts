@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createSupabaseClient, createSupabaseAdmin } from '../lib/supabase';
+import { stripPortalPrefix, withPortalPrefix } from '../lib/paths';
 
 // Routes that do NOT require authentication
 const PUBLIC_ROUTES = [
@@ -19,12 +20,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { url, cookies, request, redirect, locals } = context;
 
   // 1. Cleanly normalize pathname (remove trailing slash except for standalone '/')
-  let pathname = url.pathname;
-
-  // Strip prefix if present so paths match cleanly regardless of base/proxying
-  if (pathname.startsWith('/investors')) {
-    pathname = pathname.replace(/^\/investors/, '') || '/';
-  }
+  let pathname = stripPortalPrefix(url.pathname);
 
   if (pathname.length > 1 && pathname.endsWith('/')) {
     pathname = pathname.slice(0, -1);
@@ -45,7 +41,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return redirect(`/login?next=${encodeURIComponent(pathname)}`);
+    return redirect(`${withPortalPrefix('/login')}?next=${encodeURIComponent(withPortalPrefix(pathname))}`);
   }
 
   // 3. Use ADMIN client to fetch investor record (Bypasses RLS initial lookup issues)
@@ -58,17 +54,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (investorError || !investor) {
     console.error('[middleware] Investor lookup failed:', investorError);
-    return redirect('/request-access?reason=not-registered');
+    return redirect(`${withPortalPrefix('/request-access')}?reason=not-registered`);
   }
 
   // Check if investor account is active/approved
   if (!investor.approved || investor.status !== 'active') {
-    return redirect('/login?reason=pending');
+    return redirect(`${withPortalPrefix('/login')}?reason=pending`);
   }
 
   // 4. Role Gate Check
   if (INVESTED_ONLY_ROUTES.includes(pathname) && investor.role !== 'invested') {
-    return redirect('/dashboard?reason=upgrade-required&page=' + encodeURIComponent(pathname));
+    return redirect(`${withPortalPrefix('/dashboard')}?reason=upgrade-required&page=${encodeURIComponent(withPortalPrefix(pathname))}`);
   }
 
   // Attach locals for page rendering
