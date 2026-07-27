@@ -10,6 +10,12 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  security: {
+    checkOrigin: false,
+    allowedDomains: [
+      { protocol: 'https', hostname: 'soggyinkgames.com' }
+    ]
+  }
   // base: '/investors',
   // site: 'https://soggyinkgames.com',
 });
