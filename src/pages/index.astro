@@ -222,12 +222,12 @@ const tiers = [
       </div>
 
       <div
-        style="margin-top: 2.5rem; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid color-mix(in srgb, var(--color-brand-yellow) 20%, transparent); background: color-mix(in srgb, var(--color-brand-yellow) 5%, transparent);"
+        style="margin-top: 2.5rem; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid color-mix(in srgb, var(--color-brand-pink) 20%, transparent); background: color-mix(in srgb, var(--color-brand-pink) 5%, transparent);"
       >
         <p
-          style="font-size: 0.75rem; color: color-mix(in srgb, var(--color-brand-yellow) 80%, transparent); line-height: 1.6; text-align: center;"
+          style="font-size: 0.75rem; color: color-mix(in srgb, var(--color-brand-pink) 80%, transparent); line-height: 1.6; text-align: center;"
         >
-          <strong style="color: var(--color-brand-yellow);">Note:</strong> Financial terms, projections and supporting documentation are available to approved investors within the portal.
+          <strong style="color: var(--color-brand-pink);">Note:</strong> Financial terms, projections and supporting documentation are available to approved investors within the portal.
         </p>
       </div>
     </div>
@@ -253,7 +253,7 @@ const tiers = [
           <div class="portal-card">
             <div
               class={
-                section.tier === "Invested"
+                section.tier === "Committed"
                   ? "badge-invested"
                   : "badge-prospective"
               }
@@ -265,7 +265,7 @@ const tiers = [
               {section.items.map((item) => (
                 <li style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: var(--color-ink-secondary);">
                   <svg
-                    style={`width: 1rem; height: 1rem; margin-top: 2px; flex-shrink: 0; color: ${section.tier === "Invested" ? "var(--color-brand-purple)" : "var(--color-brand-teal)"}`}
+                    style={`width: 1rem; height: 1rem; margin-top: 2px; flex-shrink: 0; color: ${section.tier === "Committed" ? "var(--color-brand-purple)" : "var(--color-brand-teal)"}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
