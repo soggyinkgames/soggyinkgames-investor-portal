@@ -1,50 +1,56 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
 
 const stats = [
-  { label: 'Studio founded', value: '2022' },
-  { label: 'Location', value: 'Sydney, AU' },
-  { label: 'Focus', value: 'Narrative games' },
-  { label: 'Stage', value: 'Early growth' },
+  { label: "total addressable market", value: "$5 Billion" },
+  { label: "Current raise", value: "AUD $2.7M" },
+  { label: "business model", value: "B2C" },
+  { label: "funded runway", value: "24 months" },
 ];
 
 const reasons = [
   {
-    title: 'A market that keeps growing',
-    body: 'The global games industry continues to expand, with independent studios increasingly capturing audience attention and critical recognition.',
+    title: "Defensible product and technology",
+    body: "Our proprietary systems combine immersive interaction, learning design and AI orchestration into a product architecture that becomes harder to replicate as the platform develops.",
   },
   {
-    title: 'Differentiated creative vision',
-    body: "We're not chasing trends. Our games occupy a distinct creative space — narrative-driven, research-informed, and built for players who want more than spectacle.",
+    title: "High-value, recurring demand",
+    body: "Medical students must continually learn and retain complex knowledge—creating a persistent use case, repeat engagement and long-term revenue potential.",
   },
   {
-    title: 'Lean, intentional operations',
-    body: "Small team, clear priorities, no bloat. We know what we're building and why — and we have the discipline to see it through.",
+    title: "ACCESSIBILITY EXPANDS THE MARKET",
+    body: "Inclusive design expands who the product can serve, meaning people often excluded by existing learning methods—creating both a larger market reach and meaningful human impact.",
   },
 ];
 
 const tiers = [
   {
-    tier: 'Prospective',
+    tier: "Prospective",
     items: [
-      'Value proposition & brand overview',
-      'Pitch deck (email + presentation versions)',
-      'Scientific research & hypotheses',
-      'Company milestones & progress',
-      'Team profiles',
+      "receive the information required to evaluate the opportunity",
+      // "Value proposition & brand overview",
+      // "Pitch deck (email + presentation versions)",
+      // "Scientific research & hypotheses",
+      // "Company milestones & progress",
+      // "Team profiles",
     ],
-    color: 'teal',
+    color: "teal",
   },
   {
-    tier: 'Invested',
+    tier: "Committed",
     items: [
-      'Everything in Prospective',
-      'Hypothesis test results',
-      'Legal documentation',
-      'Cap table & financial detail',
-      'Engagement history',
+      "receive deeper access",
+      "validation results",
+      "legal documentation",
+      "financial detail",
+      "engagement history",
+      // "Everything in Prospective",
+      // "Hypothesis test results",
+      // "Legal documentation",
+      // "Cap table & financial detail",
+      // "Engagement history",
     ],
-    color: 'purple',
+    color: "purple",
   },
 ];
 ---
@@ -54,16 +60,35 @@ const tiers = [
   description="Soggy Ink Games investor relations. Learn about our vision and request access to our investor portal."
 >
   <section style="position: relative; overflow: hidden;">
-    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, var(--color-portal-bg), #0d1e30, var(--color-portal-bg)); pointer-events: none;" aria-hidden="true"></div>
-    <div style="position: absolute; inset: 0; opacity: 0.03; background-image: linear-gradient(#00acd2 1px, transparent 1px), linear-gradient(90deg, #00acd2 1px, transparent 1px); background-size: 60px 60px;" aria-hidden="true"></div>
+    <div
+      style="position: absolute; inset: 0; background: linear-gradient(135deg, var(--color-portal-bg), #0d1e30, var(--color-portal-bg)); pointer-events: none;"
+      aria-hidden="true"
+    >
+    </div>
+    <div
+      style="position: absolute; inset: 0; opacity: 0.03; background-image: linear-gradient(#00acd2 1px, transparent 1px), linear-gradient(90deg, #00acd2 1px, transparent 1px); background-size: 60px 60px;"
+      aria-hidden="true"
+    >
+    </div>
 
-    <div style="position: relative; max-width: 64rem; margin: 0 auto; padding: 6rem 1.5rem 5rem; text-align: center;">
-      <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-brand-teal) 30%, transparent); background: color-mix(in srgb, var(--color-brand-teal) 5%, transparent); margin-bottom: 2rem;">
-        <span style="width: 6px; height: 6px; border-radius: 9999px; background: var(--color-brand-teal); animation: pulse 2s infinite;"></span>
-        <span style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase;">Investor Relations</span>
+    <div
+      style="position: relative; max-width: 64rem; margin: 0 auto; padding: 6rem 1.5rem 5rem; text-align: center;"
+    >
+      <div
+        style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-brand-teal) 30%, transparent); background: color-mix(in srgb, var(--color-brand-teal) 5%, transparent); margin-bottom: 2rem;"
+      >
+        <span
+          style="width: 6px; height: 6px; border-radius: 9999px; background: var(--color-brand-teal); animation: pulse 2s infinite;"
+        ></span>
+        <span
+          style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase;"
+          >Investor Relations</span
+        >
       </div>
 
-      <div style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+      <div
+        style="display: flex; justify-content: center; margin-bottom: 1.5rem;"
+      >
         <img
           src="https://res.cloudinary.com/soggy-ink-games/image/upload/v1651059402/soggyInkGamesSMALL_axleob.png"
           alt="Soggy Ink Games"
@@ -71,22 +96,41 @@ const tiers = [
         />
       </div>
 
-      <h1 style="font-family: var(--font-family-display); font-size: clamp(1.75rem, 4vw, 3rem); color: var(--color-ink-primary); margin-bottom: 1.5rem; line-height: 1.2; letter-spacing: 0.05em;">
-        Building games that<br/>
-        <span style="background: var(--background-image-brand-gradient); background-clip: text; -webkit-background-clip: text; color: transparent;">matter to people</span>
+      <h1
+        style="font-family: var(--font-family-display); font-size: clamp(1.75rem, 4vw, 3rem); color: var(--color-ink-primary); margin-bottom: 1.5rem; line-height: 1.2; letter-spacing: 0.05em;"
+      >
+        Building the future of<br />
+        <span
+          style="background: var(--background-image-brand-gradient); background-clip: text; -webkit-background-clip: text; color: transparent;"
+        >
+          immersive learning</span
+        >
       </h1>
 
-      <p style="font-size: 1rem; color: var(--color-ink-secondary); max-width: 40rem; margin: 0 auto 2.5rem; line-height: 1.75;">
-        Soggy Ink Games is an independent Australian game studio creating experiences at the intersection
-        of meaningful narrative, scientific curiosity, and genuine play. We're building something worth
-        believing in — and we're looking for investors who share that conviction.
+      <p
+        style="font-size: 1rem; color: var(--color-ink-secondary); max-width: 40rem; margin: 0 auto 2.5rem; line-height: 1.75;"
+      >
+        SOGGY INK GAMES is an independent Australian game studio creating
+        repeatable virtual experiences at the intersection of memory, science &
+        play. We're building something worth believing in — and we're looking
+        for investors who share that conviction.
       </p>
 
-      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem;">
-        <a href="/investors/request-access" class="btn-primary" style="font-size: 0.875rem; padding: 0.75rem 2rem;">
+      <div
+        style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem;"
+      >
+        <a
+          href="/investors/request-access"
+          class="btn-primary"
+          style="font-size: 0.875rem; padding: 0.75rem 2rem;"
+        >
           Request investor access
         </a>
-        <a href="/investors/login" class="btn-secondary" style="font-size: 0.875rem; padding: 0.75rem 2rem;">
+        <a
+          href="/investors/login"
+          class="btn-secondary"
+          style="font-size: 0.875rem; padding: 0.75rem 2rem;"
+        >
           Sign in
         </a>
       </div>
@@ -96,86 +140,168 @@ const tiers = [
   <section style="max-width: 64rem; margin: 0 auto; padding: 5rem 1.5rem;">
     <div class="portal-divider" style="margin-bottom: 4rem;"></div>
 
-    <div style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;">
+    <div
+      style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;"
+    >
       <div>
-        <p style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;">What we're building</p>
-        <h2 style="font-family: var(--font-family-display); font-size: 1.5rem; color: var(--color-ink-primary); margin-bottom: 1.25rem; line-height: 1.3;">
-          Games that ask real questions
-        </h2>
-        <p style="color: var(--color-ink-secondary); line-height: 1.75; margin-bottom: 1rem;">
-          We believe the best games don't just entertain — they leave you thinking differently.
-          Our work draws on scientific research, genuine human stories, and a design philosophy
-          that respects the player's intelligence.
+        <p
+          style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;"
+        >
+          What we're building
         </p>
-        <p style="color: var(--color-ink-secondary); line-height: 1.75;">
-          As a small studio, we move with intention. Every decision — from mechanics to narrative
-          to business model — is made to build something sustainable and genuinely good.
+        <h2
+          style="font-family: var(--font-family-display); font-size: 1.5rem; color: var(--color-ink-primary); margin-bottom: 1.25rem; line-height: 1.3;"
+        >
+          A virtual reality game to help medical students memorise anything they
+          want
+        </h2>
+        <p
+          style="color: var(--color-ink-secondary); line-height: 1.75; margin-bottom: 1rem;"
+        >
+          Medical students face a persistent, high-stakes need to retain large volumes of information.
+        </p>
+        <p
+          style="color: var(--color-ink-secondary); line-height: 1.75; margin-bottom: 1rem;"
+        >
+          SOGGY INK GAMES is building an immersive learning platform that turns memory practice into active, repeatable play—designed for long-term engagement, global participation and expandable content.
+        </p>
+        <p style="color: var(--color-ink-secondary); line-height: 1.75; margin-bottom: 1rem;">
+          Our initial market is medical education, with a direct-to-consumer model and a product architecture designed to extend across subjects and learning needs. 
         </p>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-        {stats.map(item => (
-          <div class="portal-card" style="text-align: center; padding: 1.25rem;">
-            <div style="font-family: var(--font-family-display); font-size: 1.125rem; color: var(--color-brand-teal); margin-bottom: 0.25rem;">{item.value}</div>
-            <div style="font-size: 0.7rem; color: var(--color-ink-muted); text-transform: uppercase; letter-spacing: 0.08em;">{item.label}</div>
-          </div>
-        ))}
+        {
+          stats.map((item) => (
+            <div
+              class="portal-card"
+              style="text-align: center; padding: 1.25rem;"
+            >
+              <div style="font-family: var(--font-family-display); font-size: 1.125rem; color: var(--color-brand-teal); margin-bottom: 0.25rem;">
+                {item.value}
+              </div>
+              <div style="font-size: 0.7rem; color: var(--color-ink-muted); text-transform: uppercase; letter-spacing: 0.08em;">
+                {item.label}
+              </div>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <section style="background: var(--color-portal-surface); border-top: 1px solid var(--color-portal-border); border-bottom: 1px solid var(--color-portal-border);">
+  <section
+    style="background: var(--color-portal-surface); border-top: 1px solid var(--color-portal-border); border-bottom: 1px solid var(--color-portal-border);"
+  >
     <div style="max-width: 64rem; margin: 0 auto; padding: 5rem 1.5rem;">
-      <p style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; text-align: center;">Why consider investing</p>
-      <h2 style="font-family: var(--font-family-display); font-size: 1.5rem; color: var(--color-ink-primary); margin-bottom: 3rem; text-align: center;">The case for independent games</h2>
+      <p
+        style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; text-align: center;"
+      >
+        Why consider investing
+      </p>
+      <h2
+        style="font-family: var(--font-family-display); font-size: 1.5rem; color: var(--color-ink-primary); margin-bottom: 3rem; text-align: center;"
+      >
+        Helping students retain the knowledge their careers depend on.
+      </h2>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-        {reasons.map(item => (
-          <div class="portal-card">
-            <h3 style="font-family: var(--font-family-display); font-size: 0.8rem; color: var(--color-ink-primary); margin-bottom: 0.75rem; line-height: 1.4;">{item.title}</h3>
-            <p style="font-size: 0.875rem; color: var(--color-ink-secondary); line-height: 1.75;">{item.body}</p>
-          </div>
-        ))}
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;"
+      >
+        {
+          reasons.map((item) => (
+            <div class="portal-card">
+              <h3 style="font-family: var(--font-family-display); font-size: 0.8rem; color: var(--color-ink-primary); margin-bottom: 0.75rem; line-height: 1.4;">
+                {item.title}
+              </h3>
+              <p style="font-size: 0.875rem; color: var(--color-ink-secondary); line-height: 1.75;">
+                {item.body}
+              </p>
+            </div>
+          ))
+        }
       </div>
 
-      <div style="margin-top: 2.5rem; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid color-mix(in srgb, var(--color-brand-yellow) 20%, transparent); background: color-mix(in srgb, var(--color-brand-yellow) 5%, transparent);">
-        <p style="font-size: 0.75rem; color: color-mix(in srgb, var(--color-brand-yellow) 80%, transparent); line-height: 1.6; text-align: center;">
-          <strong style="color: var(--color-brand-yellow);">Note:</strong> Specific financial details, terms, and projections are available to registered investors
-          after identity verification. Request access below to begin the process.
+      <div
+        style="margin-top: 2.5rem; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid color-mix(in srgb, var(--color-brand-yellow) 20%, transparent); background: color-mix(in srgb, var(--color-brand-yellow) 5%, transparent);"
+      >
+        <p
+          style="font-size: 0.75rem; color: color-mix(in srgb, var(--color-brand-yellow) 80%, transparent); line-height: 1.6; text-align: center;"
+        >
+          <strong style="color: var(--color-brand-yellow);">Note:</strong> Financial terms, projections and supporting documentation are available to approved investors within the portal.
         </p>
       </div>
     </div>
   </section>
 
   <section style="max-width: 64rem; margin: 0 auto; padding: 5rem 1.5rem;">
-    <p style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; text-align: center;">What you'll find inside</p>
-    <h2 style="font-family: var(--font-family-display); font-size: 1.5rem; color: var(--color-ink-primary); margin-bottom: 3rem; text-align: center;">The investor portal</h2>
+    <p
+      style="font-size: 0.7rem; font-weight: 500; color: var(--color-brand-teal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; text-align: center;"
+    >
+      What you'll find inside
+    </p>
+    <h2
+      style="font-family: var(--font-family-display); font-size: 1.5rem; color: var(--color-ink-primary); margin-bottom: 3rem; text-align: center;"
+    >
+      One place to evaluate the company, evidence and opportunity.
+    </h2>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 3rem;">
-      {tiers.map(section => (
-        <div class="portal-card">
-          <div class={section.tier === 'Invested' ? 'badge-invested' : 'badge-prospective'} style="margin-bottom: 1rem; display: inline-flex;">
-            {section.tier} investor
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 3rem;"
+    >
+      {
+        tiers.map((section) => (
+          <div class="portal-card">
+            <div
+              class={
+                section.tier === "Invested"
+                  ? "badge-invested"
+                  : "badge-prospective"
+              }
+              style="margin-bottom: 1rem; display: inline-flex;"
+            >
+              {section.tier} investor
+            </div>
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+              {section.items.map((item) => (
+                <li style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: var(--color-ink-secondary);">
+                  <svg
+                    style={`width: 1rem; height: 1rem; margin-top: 2px; flex-shrink: 0; color: ${section.tier === "Invested" ? "var(--color-brand-purple)" : "var(--color-brand-teal)"}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
-            {section.items.map(item => (
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: var(--color-ink-secondary);">
-                <svg style={`width: 1rem; height: 1rem; margin-top: 2px; flex-shrink: 0; color: ${section.tier === 'Invested' ? 'var(--color-brand-purple)' : 'var(--color-brand-teal)'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+        ))
+      }
     </div>
 
     <div style="text-align: center;">
-      <h3 style="font-family: var(--font-family-display); font-size: 1.25rem; color: var(--color-ink-primary); margin-bottom: 1rem;">Ready to learn more?</h3>
-      <p style="font-size: 0.875rem; color: var(--color-ink-secondary); margin-bottom: 2rem; max-width: 28rem; margin-left: auto; margin-right: auto; line-height: 1.75;">
-        Request access to the investor portal. We review all requests personally and will be in touch within a few days.
+      <h3
+        style="font-family: var(--font-family-display); font-size: 1.25rem; color: var(--color-ink-primary); margin-bottom: 1rem;"
+      >
+        Evaluate the opportunity
+      </h3>
+      <p
+        style="font-size: 0.875rem; color: var(--color-ink-secondary); margin-bottom: 2rem; max-width: 28rem; margin-left: auto; margin-right: auto; line-height: 1.75;"
+      >
+        Request access to the investor portal for the company thesis, commercial model, milestones, research and supporting documentation. Access is reviewed individually to protect confidential company information. Approved applicants will receive a response within three business days.
       </p>
-      <a href="/investors/request-access" class="btn-primary" style="font-size: 0.875rem; padding: 0.75rem 2.5rem;">
+      <a
+        href="/investors/request-access"
+        class="btn-primary"
+        style="font-size: 0.875rem; padding: 0.75rem 2.5rem;"
+      >
         Request investor access →
       </a>
     </div>
@@ -183,8 +309,13 @@ const tiers = [
 
   <style>
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.4;
+      }
     }
   </style>
 </BaseLayout>
