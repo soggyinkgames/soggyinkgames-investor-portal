@@ -1,5 +1,5 @@
 /**
- * /investors/api/request-access
+ * /api/request-access
  * 
  * Handles the public "Request access" form submission.
  * Creates an auth.users record and an investors row (approved=false) for manual review.
@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   // Basic validation
   if (!name || !email || !email.includes('@')) {
-    return redirect('/investors/request-access?error=invalid-input');
+    return redirect('/request-access?error=invalid-input');
   }
 
   const adminSupabase = createSupabaseAdmin();
@@ -33,9 +33,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   if (existing) {
     if (existing.approved) {
-      return redirect('/investors/login?reason=already-approved');
+      return redirect('/login?reason=already-approved');
     } else {
-      return redirect('/investors/request-access?status=already-submitted');
+      return redirect('/request-access?status=already-submitted');
     }
   }
 
@@ -50,7 +50,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (authError) {
     // If the user already exists in auth.users but not in investors table, handle gracefully
     console.error('[request-access] Auth user creation failed:', authError);
-    return redirect('/investors/request-access?error=server-error');
+    return redirect('/request-access?error=server-error');
   }
 
   // 3. Insert investor record tied directly to the new Auth user ID
@@ -67,7 +67,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   if (insertError) {
     console.error('[request-access] Insert failed:', insertError);
-    return redirect('/investors/request-access?error=server-error');
+    return redirect('/request-access?error=server-error');
   }
 
   // 4. Notify founder
@@ -82,6 +82,6 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     console.error('[request-access] Notification email failed:', err);
   }
 
-  return redirect('/investors/request-access?status=submitted');
+  return redirect('/request-access?status=submitted');
 };
 

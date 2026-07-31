@@ -1,6 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createSupabaseClient, createSupabaseAdmin } from '../lib/supabase';
-import { stripPortalPrefix, withPortalPrefix } from '../lib/paths';
 
 // Routes that do NOT require authentication
 const PUBLIC_ROUTES = [
@@ -20,7 +19,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { url, cookies, request, redirect, locals } = context;
 
   // 1. Cleanly normalize pathname (remove trailing slash except for standalone '/')
-  let pathname = stripPortalPrefix(url.pathname);
+  let pathname = url.pathname;
 
   if (pathname.length > 1 && pathname.endsWith('/')) {
     pathname = pathname.slice(0, -1);
@@ -41,7 +40,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return redirect(`${withPortalPrefix('/login')}?next=${encodeURIComponent(withPortalPrefix(pathname))}`);
+    return redirect(`/login?next=${encodeURIComponent(pathname)}`);
   }
 
   // 3. Use ADMIN client to fetch investor record (Bypasses RLS initial lookup issues)
@@ -54,17 +53,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (investorError || !investor) {
     console.error('[middleware] Investor lookup failed:', investorError);
-    return redirect(`${withPortalPrefix('/request-access')}?reason=not-registered`);
+    return redirect('/request-access?reason=not-registered');
   }
 
   // Check if investor account is active/approved
   if (!investor.approved || investor.status !== 'active') {
-    return redirect(`${withPortalPrefix('/login')}?reason=pending`);
+    return redirect('/login?reason=pending');
   }
 
   // 4. Role Gate Check
   if (INVESTED_ONLY_ROUTES.includes(pathname) && investor.role !== 'invested') {
-    return redirect(`${withPortalPrefix('/dashboard')}?reason=upgrade-required&page=${encodeURIComponent(withPortalPrefix(pathname))}`);
+    return redirect(`/dashboard?reason=upgrade-required&page=${encodeURIComponent(pathname)}`);
   }
 
   // Attach locals for page rendering

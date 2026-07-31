@@ -1,5 +1,5 @@
 /**
- * /investors/api/document/[id]
+ * /api/document/[id]
  * 
  * Serves a document to an authenticated, approved investor.
  * 
@@ -119,7 +119,7 @@ export const GET: APIRoute = async ({ params, cookies, request }) => {
       contentType = 'application/pdf';
     } catch (err) {
       console.error('[document] Watermarking failed:', err);
-      // Fall back to un-watermarked (log the failure)
+      return new Response('Document temporarily unavailable', { status: 503 });
     }
   }
 

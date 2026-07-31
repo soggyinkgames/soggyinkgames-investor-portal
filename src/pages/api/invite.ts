@@ -1,26 +1,6 @@
-/**
- * /investors/api/invite
- * 
- * Internal API for pre-seeding investor accounts.
- * 
- * This supports the "pre-seeded invite" entry path:
- * the founder creates an investor row directly with the right role
- * and sends a direct magic-link invite — no form, no waiting.
- * 
- * SECURITY: This endpoint requires the INVITE_SECRET header.
- * It should only be called from a trusted context (e.g. a local script
- * or a secured admin page), never exposed publicly.
- * 
- * Usage:
- *   curl -X POST https://your-portal.netlify.app/investors/api/invite \
- *     -H "X-Invite-Secret: <your-secret>" \
- *     -H "Content-Type: application/json" \
- *     -d '{"name":"Jane Smith","email":"jane@fund.com","role":"prospective"}'
- */
 import type { APIRoute } from 'astro';
 import { createSupabaseAdmin } from '../../lib/supabase';
 import { sendMagicLinkEmail } from '../../lib/email';
-import { portalUrl } from '../../lib/paths';
 
 export const POST: APIRoute = async ({ request }) => {
   // 1. Verify invite secret
@@ -61,7 +41,7 @@ export const POST: APIRoute = async ({ request }) => {
     type: 'magiclink',
     email,
     options: {
-      redirectTo: portalUrl('/api/auth/callback'),
+      redirectTo: 'https://investors.soggyinkgames.com/api/auth/callback',
     },
   });
 

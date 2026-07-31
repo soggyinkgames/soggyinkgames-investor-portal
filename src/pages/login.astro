@@ -1,6 +1,6 @@
 ---
 /**
- * /investors/login
+ * /login
  *
  * Magic link login page.
  * Sends a one-time login link to the investor's email via Resend.
@@ -12,8 +12,8 @@
  */
 
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { createSupabaseClient, createSupabaseAdmin } from "../lib/supabase"; // 👈 Import admin client
-import { portalUrl, safePortalRedirect, withPortalPrefix } from "../lib/paths";
+import { createSupabaseClient, createSupabaseAdmin } from "../lib/supabase";
+import { safePortalRedirect } from "../lib/paths";
 
 const supabase = createSupabaseClient(Astro.cookies, Astro.request);
 
@@ -22,7 +22,7 @@ const {
   data: { session },
 } = await supabase.auth.getSession();
 if (session) {
-  return Astro.redirect(withPortalPrefix("/dashboard"));
+  return Astro.redirect("/dashboard");
 }
 
 const reason = Astro.url.searchParams.get("reason");
@@ -41,7 +41,6 @@ if (Astro.request.method === "POST") {
   if (!email || !email.includes("@")) {
     errorMessage = "Please enter a valid email address.";
   } else {
-    // 👈 Use adminSupabase to bypass RLS for this pre-flight check
     const adminSupabase = createSupabaseAdmin();
     const { data: investor } = await adminSupabase
       .from("investors")
@@ -50,21 +49,17 @@ if (Astro.request.method === "POST") {
       .maybeSingle();
 
     if (!investor) {
-      // Not registered — redirect to request access
-      return Astro.redirect(
-        `${withPortalPrefix("/request-access")}?reason=not-found`,
-      );
+      return Astro.redirect(`/request-access?reason=not-found`);
     }
 
     if (!investor.approved || investor.status !== "active") {
       errorMessage =
         "Your access request is still under review. We'll be in touch soon.";
     } else {
-      // Send magic link via Supabase Auth
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${portalUrl("/api/auth/callback")}?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `https://investors.soggyinkgames.com/api/auth/callback?next=${encodeURIComponent(next)}`,
           shouldCreateUser: false,
         },
       });
@@ -119,7 +114,7 @@ if (Astro.request.method === "POST") {
         reason === "not-registered" && (
           <div class="mb-6 p-4 rounded-lg bg-brand-teal/10 border border-brand-teal/30 text-brand-teal text-sm">
             We don't have an account for that email.{" "}
-            <a href="/investors/request-access" class="underline font-semibold">
+            <a href="/request-access" class="underline font-semibold">
               Request access
             </a>{" "}
             to get started.
@@ -170,7 +165,7 @@ if (Astro.request.method === "POST") {
                 <p class="text-xs text-ink-muted text-center">
                   Don't have access yet?{" "}
                   <a
-                    href="/investors/request-access"
+                    href="/request-access"
                     class="text-brand-teal hover:text-brand-teal/80"
                   >
                     Request access

@@ -1,6 +1,6 @@
 ---
 /**
- * /investors/legal — Invested only
+ * /legal — Invested only
  * 
  * Legal documents, cap table, and financial detail.
  * Middleware enforces role = 'invested' before reaching this page.
@@ -26,7 +26,7 @@ const { data: legalDocs } = await supabase
 >
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-10">
-      <a href="/investors/dashboard" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-6 transition-colors">
+      <a href="/dashboard" class="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink-secondary mb-6 transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -82,7 +82,7 @@ const { data: legalDocs } = await supabase
                 </div>
               </div>
               <a
-                href={`/investors/api/document/${doc.id}`}
+                href={`/api/document/${doc.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn-primary text-xs flex-shrink-0"
@@ -118,8 +118,8 @@ const { data: legalDocs } = await supabase
       </a>
     </div>
     <div class="flex items-center justify-between pt-8 portal-divider mt-8">
-      <a href="/investors/hypothesis-results" class="btn-ghost text-sm">← Hypothesis Results</a>
-      <a href="/investors/dashboard" class="btn-primary text-sm">Dashboard →</a>
+      <a href="/hypothesis-results" class="btn-ghost text-sm">← Hypothesis Results</a>
+      <a href="/dashboard" class="btn-primary text-sm">Dashboard →</a>
     </div>
   </div>
 </BaseLayout>

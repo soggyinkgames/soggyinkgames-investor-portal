@@ -50,6 +50,7 @@ export const createSupabaseServerClient = (context: APIContext) => {
             path: '/',
             sameSite: 'lax',
             secure: true,
+            httpOnly: true,
           });
         });
       },

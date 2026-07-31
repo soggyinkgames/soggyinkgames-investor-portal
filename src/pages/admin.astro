@@ -1,6 +1,6 @@
 ---
 /**
- * /investors/admin — Founder-only admin dashboard
+ * /admin — Founder-only admin dashboard
  * 
  * Shows the events log: who's viewed what, and when.
  * Also shows all investor records for quick status review.
@@ -17,7 +17,7 @@ const supabase = createSupabaseClient(Astro.cookies, Astro.request);
 // Verify session
 const { data: { session } } = await supabase.auth.getSession();
 if (!session) {
-  return Astro.redirect('/investors/login?next=/investors/admin');
+  return Astro.redirect('/login?next=/admin');
 }
 
 // 1. Array of authorized emails (filters out undefined vars)
@@ -30,7 +30,7 @@ const ADMIN_EMAILS = [
 const userEmail = session?.user?.email;
 
 if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
-  return Astro.redirect('/investors/dashboard');
+  return Astro.redirect('/dashboard');
 }
 
 // Use admin client for full data access
@@ -93,8 +93,8 @@ const adminUser = {
         <p class="text-sm text-ink-secondary mt-1">Engagement dashboard and investor management</p>
       </div>
       <div class="flex items-center gap-3">
-        <a href="/investors/dashboard" class="btn-ghost text-xs">← Portal</a>
-        <form method="POST" action="/investors/api/logout">
+        <a href="/dashboard" class="btn-ghost text-xs">← Portal</a>
+        <form method="POST" action="/api/logout">
           <button type="submit" class="btn-ghost text-xs">Sign out</button>
         </form>
       </div>

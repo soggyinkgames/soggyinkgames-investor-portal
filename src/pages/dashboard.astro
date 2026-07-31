@@ -1,6 +1,6 @@
 ---
 /**
- * /investors/dashboard — Prospective+ gated home
+ * /dashboard — Prospective+ gated home
  * 
  * Shows tiered navigation and a personalised welcome.
  * Middleware ensures only approved investors reach this page.
@@ -39,13 +39,13 @@ const upgradeReason = Astro.url.searchParams.get('reason');
 const requestedPage = Astro.url.searchParams.get('page');
 
 const navItems = [
-  { href: '/investors/value-proposition', label: 'Value Proposition', description: 'Our core thesis and market opportunity', icon: '◆', tier: 'prospective' },
-  { href: '/investors/pitch-deck', label: 'Pitch Deck', description: 'Full deck in email and presentation formats', icon: '◈', tier: 'prospective' },
-  { href: '/investors/scientific-pitch', label: 'Scientific Pitch', description: 'Research foundations and hypotheses', icon: '◉', tier: 'prospective' },
-  { href: '/investors/milestones', label: 'Milestones', description: 'Company progress timeline', icon: '◎', tier: 'prospective' },
-  { href: '/investors/team', label: 'Team', description: 'Who we are and what we bring', icon: '◍', tier: 'prospective' },
-  { href: '/investors/hypothesis-results', label: 'Hypothesis Results', description: 'Test results and validation data', icon: '◑', tier: 'invested' },
-  { href: '/investors/legal', label: 'Legal Documents', description: 'Agreements, cap table, and financial detail', icon: '◐', tier: 'invested' },
+  { href: '/value-proposition', label: 'Value Proposition', description: 'Our core thesis and market opportunity', icon: '◆', tier: 'prospective' },
+  { href: '/pitch-deck', label: 'Pitch Deck', description: 'Full deck in email and presentation formats', icon: '◈', tier: 'prospective' },
+  { href: '/scientific-pitch', label: 'Scientific Pitch', description: 'Research foundations and hypotheses', icon: '◉', tier: 'prospective' },
+  { href: '/milestones', label: 'Milestones', description: 'Company progress timeline', icon: '◎', tier: 'prospective' },
+  { href: '/team', label: 'Team', description: 'Who we are and what we bring', icon: '◍', tier: 'prospective' },
+  { href: '/hypothesis-results', label: 'Hypothesis Results', description: 'Test results and validation data', icon: '◑', tier: 'invested' },
+  { href: '/legal', label: 'Legal Documents', description: 'Agreements, cap table, and financial detail', icon: '◐', tier: 'invested' },
 ];
 ---
 
@@ -131,7 +131,7 @@ const navItems = [
       <div class="mb-10">
         <div class="flex items-center justify-between mb-4">
           <h2 class="font-display text-xs text-ink-secondary tracking-widest uppercase">Recent milestones</h2>
-          <a href="/investors/milestones" class="text-xs text-brand-teal hover:text-brand-teal/80 transition-colors">
+          <a href="/milestones" class="text-xs text-brand-teal hover:text-brand-teal/80 transition-colors">
             View all →
           </a>
         </div>
