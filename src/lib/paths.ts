@@ -2,11 +2,12 @@ export const PORTAL_PREFIX = '/investors';
 export const PORTAL_ORIGIN = 'https://soggyinkgames.com';
 
 /**
- * Detects if the current runtime is on the investor subdomain.
+ * Detects if the current runtime is on the investor subdomain OR Netlify main-- branch preview.
  */
 export function isSubdomain(): boolean {
   if (typeof window === 'undefined') return false;
-  return window.location.hostname.startsWith('investors.');
+  const host = window.location.hostname;
+  return host.startsWith('investors.') || host.startsWith('main--');
 }
 
 export function stripPortalPrefix(pathname: string) {
@@ -24,7 +25,7 @@ export function stripPortalPrefix(pathname: string) {
 export function withPortalPrefix(pathname: string) {
   const normalized = pathname.startsWith('/') ? pathname : `/${pathname}`;
 
-  // If on subdomain, strip /investors prefix completely
+  // If on subdomain or main-- branch deploy, strip /investors prefix completely
   if (isSubdomain()) {
     return stripPortalPrefix(normalized);
   }
